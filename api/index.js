@@ -92,32 +92,32 @@ async function sendOTPEmail(email, otp, name = 'User') {
         <title>Verifikasi DooPedia</title>
         <style>
             * { margin:0; padding:0; box-sizing:border-box; }
-            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background: #f5f5f7; padding: 20px; }
-            .container { max-width: 580px; margin: 0 auto; background: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.08); }
-            .header { background: linear-gradient(135deg, #1a1a2e, #2d1b69); padding: 40px 30px 30px; text-align: center; border-bottom: 4px solid #7c3aed; }
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background: #0a0e17; padding: 20px; }
+            .container { max-width: 580px; margin: 0 auto; background: #0f1a2e; border-radius: 24px; overflow: hidden; border: 1px solid rgba(0,102,204,0.1); }
+            .header { background: linear-gradient(135deg, #0a0e17, #0f1a2e); padding: 40px 30px 30px; text-align: center; border-bottom: 4px solid #0088FF; }
             .header .logo { font-size: 28px; font-weight: 900; color: #ffffff; }
-            .header .logo span { color: #a855f7; }
-            .header .subtitle { color: rgba(255,255,255,0.7); font-size: 14px; margin-top: 6px; }
-            .body { padding: 40px 35px; background: #ffffff; }
-            .greeting { font-size: 20px; font-weight: 700; color: #1a1a2e; margin-bottom: 12px; }
-            .greeting span { color: #7c3aed; }
-            .message { color: #4a4a5a; line-height: 1.8; font-size: 15px; margin-bottom: 25px; }
-            .otp-box { background: #f8f6ff; border: 2px dashed #e8e0f8; border-radius: 16px; padding: 30px 20px; text-align: center; margin: 25px 0; }
-            .otp-label { font-size: 13px; color: #7c3aed; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; }
-            .otp-code { font-size: 44px; font-weight: 900; letter-spacing: 12px; color: #1a1a2e; font-family: 'Courier New', monospace; padding: 8px 0; }
-            .otp-code span { display: inline-block; background: #f0ebff; padding: 4px 10px; border-radius: 8px; }
+            .header .logo span { color: #0088FF; }
+            .header .subtitle { color: rgba(255,255,255,0.6); font-size: 14px; margin-top: 6px; }
+            .body { padding: 40px 35px; background: #0f1a2e; }
+            .greeting { font-size: 20px; font-weight: 700; color: #ffffff; margin-bottom: 12px; }
+            .greeting span { color: #0088FF; }
+            .message { color: #8899bb; line-height: 1.8; font-size: 15px; margin-bottom: 25px; }
+            .otp-box { background: rgba(0,136,255,0.05); border: 2px dashed rgba(0,136,255,0.15); border-radius: 16px; padding: 30px 20px; text-align: center; margin: 25px 0; }
+            .otp-label { font-size: 13px; color: #0088FF; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; }
+            .otp-code { font-size: 44px; font-weight: 900; letter-spacing: 12px; color: #ffffff; font-family: 'Courier New', monospace; padding: 8px 0; }
+            .otp-code span { display: inline-block; background: rgba(0,136,255,0.1); padding: 4px 10px; border-radius: 8px; }
             .otp-info { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 20px 0 10px; }
-            .otp-info-item { background: #f8f6ff; border-radius: 10px; padding: 12px 8px; text-align: center; }
+            .otp-info-item { background: rgba(0,136,255,0.03); border-radius: 10px; padding: 12px 8px; text-align: center; border: 1px solid rgba(0,136,255,0.05); }
             .otp-info-item .icon { font-size: 18px; display: block; margin-bottom: 4px; }
-            .otp-info-item .text { font-size: 11px; color: #4a4a5a; line-height: 1.4; }
-            .otp-info-item .highlight { color: #7c3aed; font-weight: 600; }
-            .divider { border: none; height: 1px; background: linear-gradient(to right, transparent, #e8e0f8, transparent); margin: 25px 0; }
-            .note { text-align: center; color: #8888aa; font-size: 12px; line-height: 1.6; margin-top: 10px; }
-            .note strong { color: #7c3aed; font-weight: 600; }
-            .footer { padding: 20px 35px 25px; background: #fafafa; text-align: center; border-top: 1px solid #f0f0f0; }
-            .footer .brand { font-size: 14px; font-weight: 700; color: #1a1a2e; }
-            .footer .brand span { color: #7c3aed; }
-            .footer p { color: #9999aa; font-size: 11px; margin-top: 6px; }
+            .otp-info-item .text { font-size: 11px; color: #8899bb; line-height: 1.4; }
+            .otp-info-item .highlight { color: #0088FF; font-weight: 600; }
+            .divider { border: none; height: 1px; background: linear-gradient(to right, transparent, rgba(0,136,255,0.1), transparent); margin: 25px 0; }
+            .note { text-align: center; color: #445566; font-size: 12px; line-height: 1.6; margin-top: 10px; }
+            .note strong { color: #0088FF; font-weight: 600; }
+            .footer { padding: 20px 35px 25px; background: #0a0e17; text-align: center; border-top: 1px solid rgba(0,136,255,0.05); }
+            .footer .brand { font-size: 14px; font-weight: 700; color: #ffffff; }
+            .footer .brand span { color: #0088FF; }
+            .footer p { color: #445566; font-size: 11px; margin-top: 6px; }
             @media (max-width: 480px) { .body { padding: 25px 20px; } .otp-code { font-size: 32px; letter-spacing: 8px; } .otp-info { grid-template-columns: 1fr; } }
         </style>
     </head>
@@ -145,7 +145,7 @@ async function sendOTPEmail(email, otp, name = 'User') {
             <div class="footer">
                 <div class="brand">✦ Doo<span>Pedia</span></div>
                 <p>© 2026 DooPedia — Solusi OTP Instan</p>
-                <p style="font-size:10px; color:#bbbbcc; margin-top:4px;">Powered by Xskydoo_yea © DooOffc</p>
+                <p style="font-size:10px; color:#334455; margin-top:4px;">Powered by Xskydoo_yea © DooOffc</p>
             </div>
         </div>
     </body>
@@ -165,54 +165,119 @@ async function sendOTPEmail(email, otp, name = 'User') {
 // ==========================================
 // AUTH ROUTES
 // ==========================================
+
 app.post('/api/auth/register', async (req, res) => {
     try {
-        const { email, name } = req.body;
-        if (!email) return res.status(400).json({ success: false, error: 'Email wajib diisi' });
+        const { email, name, password } = req.body;
+
+        if (!email || !password) {
+            return res.status(400).json({ success: false, error: 'Email dan password wajib diisi' });
+        }
+
+        if (password.length < 6) {
+            return res.status(400).json({ success: false, error: 'Password minimal 6 karakter' });
+        }
 
         const db = readDB();
+
         if (db.users.some(u => u.email === email && !u.isTemp)) {
             return res.status(400).json({ success: false, error: 'Email sudah terdaftar' });
         }
 
+        db.users = db.users.filter(u => u.email !== email || !u.isTemp);
+
         const otp = generateOTP();
         const expiresAt = Date.now() + 5 * 60 * 1000;
+        const hashedPassword = hashPassword(password);
 
-        db.users = db.users.filter(u => u.email !== email || !u.isTemp);
-        db.users.push({ email, name: name || email.split('@')[0], otp, otpExpires: expiresAt, isTemp: true });
+        db.users.push({
+            email,
+            name: name || email.split('@')[0],
+            password: hashedPassword,
+            otp,
+            otpExpires: expiresAt,
+            isTemp: true,
+            createdAt: Date.now()
+        });
         writeDB(db);
 
         await sendOTPEmail(email, otp, name || email.split('@')[0]);
 
         res.json({ success: true, message: 'Kode OTP telah dikirim ke email Anda', email, expiresIn: '5 menit' });
+
     } catch (error) {
         console.error('Register error:', error);
-        res.status(500).json({ success: false, error: 'Gagal mengirim OTP' });
+        res.status(500).json({ success: false, error: 'Gagal mengirim OTP. Coba lagi.' });
+    }
+});
+
+app.post('/api/auth/resend-otp', async (req, res) => {
+    try {
+        const { email, name, password } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ success: false, error: 'Email wajib diisi' });
+        }
+
+        const db = readDB();
+        const tempUser = db.users.find(u => u.email === email && u.isTemp === true);
+
+        if (!tempUser) {
+            return res.status(400).json({ success: false, error: 'Email tidak terdaftar untuk verifikasi' });
+        }
+
+        const newOtp = generateOTP();
+        const expiresAt = Date.now() + 5 * 60 * 1000;
+
+        tempUser.otp = newOtp;
+        tempUser.otpExpires = expiresAt;
+        
+        if (password) {
+            tempUser.password = hashPassword(password);
+        }
+
+        writeDB(db);
+
+        await sendOTPEmail(email, newOtp, tempUser.name || email.split('@')[0]);
+
+        res.json({ success: true, message: 'OTP baru telah dikirim', expiresIn: '5 menit' });
+
+    } catch (error) {
+        console.error('Resend OTP error:', error);
+        res.status(500).json({ success: false, error: 'Gagal mengirim ulang OTP' });
     }
 });
 
 app.post('/api/auth/verify', async (req, res) => {
     try {
-        const { email, otp, password } = req.body;
+        const { email, otp, password, name } = req.body;
+
         if (!email || !otp || !password) {
-            return res.status(400).json({ success: false, error: 'Semua field wajib diisi' });
+            return res.status(400).json({ success: false, error: 'Email, OTP, dan password wajib diisi' });
         }
 
         const db = readDB();
         const tempUser = db.users.find(u => u.email === email && u.isTemp === true);
-        if (!tempUser) return res.status(400).json({ success: false, error: 'Email tidak terdaftar' });
-        if (tempUser.otp !== otp) return res.status(400).json({ success: false, error: 'Kode OTP salah' });
+
+        if (!tempUser) {
+            return res.status(400).json({ success: false, error: 'Email tidak terdaftar atau sudah diverifikasi' });
+        }
+
+        if (tempUser.otp !== otp) {
+            return res.status(400).json({ success: false, error: 'Kode OTP salah' });
+        }
+
         if (Date.now() > tempUser.otpExpires) {
             db.users = db.users.filter(u => u.email !== email);
             writeDB(db);
-            return res.status(400).json({ success: false, error: 'Kode OTP sudah kadaluarsa' });
+            return res.status(400).json({ success: false, error: 'Kode OTP sudah kadaluarsa. Silakan daftar ulang.' });
         }
 
         const newUser = {
             id: 'user_' + Date.now(),
-            email,
-            name: tempUser.name,
-            password: hashPassword(password),
+            email: email,
+            name: tempUser.name || name || email.split('@')[0],
+            password: tempUser.password,
             balance: 0,
             isVerified: true,
             createdAt: Date.now(),
@@ -225,20 +290,39 @@ app.post('/api/auth/verify', async (req, res) => {
 
         const sessionToken = crypto.randomBytes(32).toString('hex');
         db.sessions = db.sessions || [];
-        db.sessions.push({ token: sessionToken, userId: newUser.id, email: newUser.email, createdAt: Date.now(), expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000 });
+        db.sessions.push({
+            token: sessionToken,
+            userId: newUser.id,
+            email: newUser.email,
+            createdAt: Date.now(),
+            expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000
+        });
         writeDB(db);
 
-        res.json({ success: true, message: 'Registrasi berhasil!', token: sessionToken, user: { id: newUser.id, email: newUser.email, name: newUser.name, balance: newUser.balance } });
+        res.json({ 
+            success: true, 
+            message: 'Registrasi berhasil!',
+            token: sessionToken,
+            user: {
+                id: newUser.id,
+                email: newUser.email,
+                name: newUser.name,
+                balance: newUser.balance
+            }
+        });
+
     } catch (error) {
         console.error('Verify error:', error);
-        res.status(500).json({ success: false, error: 'Verifikasi gagal' });
+        res.status(500).json({ success: false, error: 'Verifikasi gagal. Coba lagi.' });
     }
 });
 
 app.post('/api/auth/login', async (req, res) => {
     try {
         const { email, password } = req.body;
-        if (!email || !password) return res.status(400).json({ success: false, error: 'Email dan password wajib diisi' });
+        if (!email || !password) {
+            return res.status(400).json({ success: false, error: 'Email dan password wajib diisi' });
+        }
 
         const db = readDB();
         const user = db.users.find(u => u.email === email && !u.isTemp);
@@ -248,10 +332,27 @@ app.post('/api/auth/login', async (req, res) => {
 
         const sessionToken = crypto.randomBytes(32).toString('hex');
         db.sessions = db.sessions || [];
-        db.sessions.push({ token: sessionToken, userId: user.id, email: user.email, createdAt: Date.now(), expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000 });
+        db.sessions.push({
+            token: sessionToken,
+            userId: user.id,
+            email: user.email,
+            createdAt: Date.now(),
+            expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000
+        });
         writeDB(db);
 
-        res.json({ success: true, message: 'Login berhasil!', token: sessionToken, user: { id: user.id, email: user.email, name: user.name, balance: user.balance || 0 } });
+        res.json({ 
+            success: true, 
+            message: 'Login berhasil!',
+            token: sessionToken,
+            user: {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                balance: user.balance || 0
+            }
+        });
+
     } catch (error) {
         console.error('Login error:', error);
         res.status(500).json({ success: false, error: 'Login gagal' });
@@ -415,10 +516,10 @@ app.post('/api/contact', async (req, res) => {
         const htmlContent = `
         <!DOCTYPE html>
         <html><head><meta charset="UTF-8"><title>Pesan Kontak - DooPedia</title>
-        <style>body{font-family:Arial,sans-serif;background:#f5f5f7;padding:20px}.container{max-width:560px;margin:0 auto;background:#fff;border-radius:24px;overflow:hidden}.header{background:linear-gradient(135deg,#1a1a2e,#2d1b69);padding:30px;text-align:center}.header h1{color:#fff;font-size:24px}.header h1 span{color:#a855f7}.body{padding:30px}.field{background:#f8f8fa;border-radius:12px;padding:14px 16px;margin-bottom:12px}.field .label{font-size:11px;font-weight:600;color:#8888aa;text-transform:uppercase}.field .value{font-size:15px;color:#1a1a2e;margin-top:4px}.footer{background:#f8f8fa;padding:16px 30px;text-align:center;color:#8888aa;font-size:11px}.footer .brand{font-weight:700;color:#1a1a2e}.footer .brand span{color:#7c3aed}</style>
+        <style>body{font-family:Arial,sans-serif;background:#0a0e17;padding:20px}.container{max-width:560px;margin:0 auto;background:#0f1a2e;border-radius:24px;overflow:hidden;border:1px solid rgba(0,102,204,0.1)}.header{background:linear-gradient(135deg,#0a0e17,#0f1a2e);padding:30px;text-align:center;border-bottom:4px solid #0088FF}.header h1{color:#fff;font-size:24px}.header h1 span{color:#0088FF}.header p{color:rgba(255,255,255,0.6)}.body{padding:30px;background:#0f1a2e}.field{background:rgba(0,136,255,0.03);border-radius:12px;padding:14px 16px;margin-bottom:12px;border:1px solid rgba(0,136,255,0.05)}.field .label{font-size:11px;font-weight:600;color:#445566;text-transform:uppercase}.field .value{font-size:15px;color:#ffffff;margin-top:4px}.footer{background:#0a0e17;padding:16px 30px;text-align:center;border-top:1px solid rgba(0,136,255,0.05)}.footer p{color:#445566;font-size:11px}.footer .brand{font-weight:700;color:#fff}.footer .brand span{color:#0088FF}</style>
         </head><body>
         <div class="container">
-            <div class="header"><h1>✦ Doo<span>Pedia</span></h1><p style="color:rgba(255,255,255,0.7)">📩 Pesan Kontak Baru</p></div>
+            <div class="header"><h1>✦ Doo<span>Pedia</span></h1><p>📩 Pesan Kontak Baru</p></div>
             <div class="body">
                 <div class="field"><div class="label">👤 Nama</div><div class="value"><strong>${name}</strong></div></div>
                 <div class="field"><div class="label">📧 Email</div><div class="value">${email}</div></div>
@@ -452,10 +553,10 @@ app.post('/api/suggest', async (req, res) => {
         const htmlContent = `
         <!DOCTYPE html>
         <html><head><meta charset="UTF-8"><title>Saran Produk - DooPedia</title>
-        <style>body{font-family:Arial,sans-serif;background:#f5f5f7;padding:20px}.container{max-width:560px;margin:0 auto;background:#fff;border-radius:24px;overflow:hidden}.header{background:linear-gradient(135deg,#1a1a2e,#2d1b69);padding:30px;text-align:center}.header h1{color:#fff;font-size:24px}.header h1 span{color:#a855f7}.body{padding:30px}.field{background:#f8f8fa;border-radius:12px;padding:14px 16px;margin-bottom:12px}.field .label{font-size:11px;font-weight:600;color:#8888aa;text-transform:uppercase}.field .value{font-size:15px;color:#1a1a2e;margin-top:4px}.footer{background:#f8f8fa;padding:16px 30px;text-align:center;color:#8888aa;font-size:11px}</style>
+        <style>body{font-family:Arial,sans-serif;background:#0a0e17;padding:20px}.container{max-width:560px;margin:0 auto;background:#0f1a2e;border-radius:24px;overflow:hidden;border:1px solid rgba(0,102,204,0.1)}.header{background:linear-gradient(135deg,#0a0e17,#0f1a2e);padding:30px;text-align:center;border-bottom:4px solid #0088FF}.header h1{color:#fff;font-size:24px}.header h1 span{color:#0088FF}.header p{color:rgba(255,255,255,0.6)}.body{padding:30px;background:#0f1a2e}.field{background:rgba(0,136,255,0.03);border-radius:12px;padding:14px 16px;margin-bottom:12px;border:1px solid rgba(0,136,255,0.05)}.field .label{font-size:11px;font-weight:600;color:#445566;text-transform:uppercase}.field .value{font-size:15px;color:#ffffff;margin-top:4px}.footer{background:#0a0e17;padding:16px 30px;text-align:center;border-top:1px solid rgba(0,136,255,0.05)}.footer p{color:#445566;font-size:11px}.footer .brand{font-weight:700;color:#fff}.footer .brand span{color:#0088FF}</style>
         </head><body>
         <div class="container">
-            <div class="header"><h1>✦ Doo<span>Pedia</span></h1><p style="color:rgba(255,255,255,0.7)">💡 Saran Produk Baru</p></div>
+            <div class="header"><h1>✦ Doo<span>Pedia</span></h1><p>💡 Saran Produk Baru</p></div>
             <div class="body">
                 <div class="field"><div class="label">📌 Nama Produk</div><div class="value"><strong>${name}</strong></div></div>
                 <div class="field"><div class="label">📂 Kategori</div><div class="value">${category || 'Lainnya'}</div></div>
@@ -463,7 +564,7 @@ app.post('/api/suggest', async (req, res) => {
                 <div class="field"><div class="label">📧 Dari Email</div><div class="value">${email}</div></div>
                 <div class="field"><div class="label">📅 Dikirim Pada</div><div class="value">${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}</div></div>
             </div>
-            <div class="footer"><p>✦ DooPedia — Solusi OTP Instan</p></div>
+            <div class="footer"><p><span class="brand">✦ Doo<span>Pedia</span></span> — Solusi OTP Instan</p></div>
         </div></body></html>`;
 
         await transporter.sendMail({
@@ -485,7 +586,4 @@ app.post('/api/suggest', async (req, res) => {
     }
 });
 
-// ==========================================
-// EXPORT
-// ==========================================
 module.exports = app;
