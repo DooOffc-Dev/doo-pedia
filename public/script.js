@@ -5,9 +5,11 @@ let currentUser = null;
 let authToken = localStorage.getItem('doopedia_token');
 let currentCategory = 'all';
 let allServices = [];
+let currentSlide = 0;
+let slideInterval;
 
 // ==========================================
-// 100+ PRODUCT IMAGES
+// PRODUCT IMAGES
 // ==========================================
 const productImages = {
     'WhatsApp': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/whatsapp.svg',
@@ -15,7 +17,6 @@ const productImages = {
     'Instagram': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg',
     'Gmail': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/gmail.svg',
     'Twitter': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/twitter.svg',
-    'X': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/x.svg',
     'TikTok': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/tiktok.svg',
     'Facebook': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/facebook.svg',
     'Discord': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/discord.svg',
@@ -23,72 +24,24 @@ const productImages = {
     'Signal': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/signal.svg',
     'Microsoft': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/microsoft.svg',
     'Apple': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/apple.svg',
-    'Google': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/google.svg',
-    'YouTube': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/youtube.svg',
-    'Netflix': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/netflix.svg',
-    'Spotify': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/spotify.svg',
-    'Amazon': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/amazon.svg',
-    'Twitch': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/twitch.svg',
-    'Reddit': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/reddit.svg',
-    'Snapchat': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/snapchat.svg',
-    'LinkedIn': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/linkedin.svg',
-    'WeChat': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/wechat.svg',
-    'KakaoTalk': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/kakaotalk.svg',
-    'Viber': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/viber.svg',
-    'Skype': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/skype.svg',
-    'Zoom': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/zoom.svg',
-    'Slack': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/slack.svg',
     'Call of Duty': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/callofduty.svg',
     'Point Blank': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/pointblank.svg',
     'Clash of Clans': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/clashofclans.svg',
-    'Clash Royale': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/clashroyale.svg',
     'Mobile Legends': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/mobilelegends.svg',
-    'MLBB': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/mlbb.svg',
     'Free Fire': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/freefire.svg',
-    'PUBG': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/pubg.svg',
     'PUBG Mobile': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/pubg.svg',
     'Valorant': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/valorant.svg',
     'Genshin Impact': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/genshinimpact.svg',
-    'Ragnarok': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/ragnarok.svg',
-    'Ragnarok M': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/ragnarokm.svg',
-    'Ragnarok X': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/ragnarokx.svg',
-    'Arena of Valor': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/arenaofvalor.svg',
-    'League of Legends': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/leagueoflegends.svg',
-    'Dota 2': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/dota2.svg',
-    'CS:GO': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/csgo.svg',
-    'Steam': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/steam.svg',
-    'Epic Games': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/epicgames.svg',
-    'Roblox': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/roblox.svg',
-    'Minecraft': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/minecraft.svg',
-    'Fortnite': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/fortnite.svg',
-    'Apex Legends': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/apexlegends.svg',
-    'PlayStation': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/playstation.svg',
-    'Xbox': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/xbox.svg',
-    'Nintendo Switch': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/nintendoswitch.svg',
     'Indosat': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/indosat.svg',
     'XL Axiata': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/xlaxiata.svg',
     'Telkomsel': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/telkomsel.svg',
     'Smartfren': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/smartfren.svg',
-    'Tri': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/tri.svg',
-    'By.U': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/byu.svg',
     'Gojek': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/gojek.svg',
     'Grab': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/grab.svg',
     'OVO': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/ovo.svg',
     'DANA': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/dana.svg',
     'Shopee': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/shopee.svg',
-    'Tokopedia': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/tokopedia.svg',
-    'Lazada': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/lazada.svg',
-    'Blibli': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/blibli.svg',
-    'Bukalapak': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/bukalapak.svg',
-    'BRI': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/bri.svg',
-    'BCA': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/bca.svg',
-    'Mandiri': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/mandiri.svg',
-    'BNI': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/bni.svg',
-    'PayPal': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/paypal.svg',
-    'Stripe': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/stripe.svg',
-    'Coinbase': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/coinbase.svg',
-    'Binance': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/binance.svg',
-    'OKX': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/okx.svg'
+    'Tokopedia': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/tokopedia.svg'
 };
 
 const DEFAULT_IMAGE = 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/default.svg';
@@ -103,22 +56,11 @@ function getProductImage(name) {
 // ==========================================
 const categoryMap = {
     'Call of Duty': 'games', 'Point Blank': 'games', 'Clash of Clans': 'games',
-    'Clash Royale': 'games', 'Mobile Legends': 'games', 'MLBB': 'games',
-    'Free Fire': 'games', 'PUBG': 'games', 'PUBG Mobile': 'games',
-    'Valorant': 'games', 'Genshin Impact': 'games', 'Ragnarok': 'games',
-    'Ragnarok M': 'games', 'Ragnarok X': 'games', 'Arena of Valor': 'games',
-    'League of Legends': 'games', 'Dota 2': 'games', 'CS:GO': 'games',
-    'Steam': 'games', 'Epic Games': 'games', 'Roblox': 'games',
-    'Minecraft': 'games', 'Fortnite': 'games', 'Apex Legends': 'games',
-    'PlayStation': 'games', 'Xbox': 'games', 'Nintendo Switch': 'games',
+    'Mobile Legends': 'games', 'Free Fire': 'games', 'PUBG Mobile': 'games',
+    'Valorant': 'games', 'Genshin Impact': 'games',
     'Indosat': 'money', 'XL Axiata': 'money', 'Telkomsel': 'money',
-    'Smartfren': 'money', 'Tri': 'money', 'By.U': 'money',
-    'Gojek': 'money', 'Grab': 'money', 'OVO': 'money', 'DANA': 'money',
-    'Shopee': 'money', 'Tokopedia': 'money', 'Lazada': 'money',
-    'Blibli': 'money', 'Bukalapak': 'money', 'BRI': 'money',
-    'BCA': 'money', 'Mandiri': 'money', 'BNI': 'money',
-    'PayPal': 'money', 'Stripe': 'money', 'Coinbase': 'money',
-    'Binance': 'money', 'OKX': 'money'
+    'Smartfren': 'money', 'Gojek': 'money', 'Grab': 'money',
+    'OVO': 'money', 'DANA': 'money', 'Shopee': 'money', 'Tokopedia': 'money'
 };
 
 function getProductCategory(name) {
@@ -134,19 +76,47 @@ window.addEventListener('load', () => {
     }, 1000);
     checkSession();
     renderServices();
+    slideInterval = setInterval(() => changeSlide(1), 5000);
 });
 
 // ==========================================
-// EXIT POPUP
+// HERO SLIDER
 // ==========================================
-let exitTriggered = false;
-document.addEventListener('mouseleave', (e) => {
-    if (e.clientY < 0 && !exitTriggered && !document.getElementById('authModal').classList.contains('show')) {
-        exitTriggered = true;
-        document.getElementById('exitPopup').classList.add('show');
-    }
+function changeSlide(direction) {
+    const slides = document.querySelectorAll('.hero-slide');
+    const dots = document.querySelectorAll('.dot');
+    slides[currentSlide].classList.remove('active');
+    dots[currentSlide].classList.remove('active');
+    currentSlide = (currentSlide + direction + slides.length) % slides.length;
+    slides[currentSlide].classList.add('active');
+    dots[currentSlide].classList.add('active');
+}
+
+function goToSlide(index) {
+    const slides = document.querySelectorAll('.hero-slide');
+    const dots = document.querySelectorAll('.dot');
+    slides[currentSlide].classList.remove('active');
+    dots[currentSlide].classList.remove('active');
+    currentSlide = index;
+    slides[currentSlide].classList.add('active');
+    dots[currentSlide].classList.add('active');
+    clearInterval(slideInterval);
+    slideInterval = setInterval(() => changeSlide(1), 5000);
+}
+
+// Pause on hover
+document.querySelector('.hero-slider')?.addEventListener('mouseenter', () => {
+    clearInterval(slideInterval);
 });
-function closeExitPopup() { document.getElementById('exitPopup').classList.remove('show'); }
+document.querySelector('.hero-slider')?.addEventListener('mouseleave', () => {
+    slideInterval = setInterval(() => changeSlide(1), 5000);
+});
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') changeSlide(-1);
+    if (e.key === 'ArrowRight') changeSlide(1);
+});
 
 // ==========================================
 // NAVIGATION
@@ -258,7 +228,7 @@ async function renderServices() {
 
     if (!filtered.length) {
         grid.innerHTML = `
-            <div style="grid-column:1/-1;text-align:center;padding:40px 0;color:#555577;">
+            <div style="grid-column:1/-1;text-align:center;padding:40px 0;color:#445566;">
                 <i class="fas fa-search" style="font-size:36px;display:block;margin-bottom:12px;"></i>
                 <p>Tidak ada produk di kategori ini</p>
                 <button onclick="openSuggestModal()" class="btn btn-secondary" style="margin-top:12px;">
@@ -269,12 +239,10 @@ async function renderServices() {
         return;
     }
 
-    grid.innerHTML = filtered.map(s => {
-        const imageUrl = s.image || DEFAULT_IMAGE;
-        return `
+    grid.innerHTML = filtered.map(s => `
         <div class="service-card">
             <div class="icon">
-                <img src="${imageUrl}" alt="${s.name}" loading="lazy" 
+                <img src="${s.image || DEFAULT_IMAGE}" alt="${s.name}" loading="lazy" 
                      onerror="this.src='${DEFAULT_IMAGE}'">
             </div>
             <h3>${s.name}</h3>
@@ -284,7 +252,7 @@ async function renderServices() {
                 <i class="fas fa-bolt"></i> Order
             </button>
         </div>
-    `}).join('');
+    `).join('');
 }
 
 // ==========================================
@@ -360,38 +328,6 @@ async function checkSession() {
             return false;
         }
     } catch (e) { return false; }
-}
-
-async function register(email, name) {
-    try {
-        const res = await fetch('/api/auth/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, name })
-        });
-        return await res.json();
-    } catch (e) { return { success: false, error: 'Network error' }; }
-}
-
-async function verifyOTP(email, otp, password) {
-    try {
-        const res = await fetch('/api/auth/verify', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, otp, password })
-        });
-        const data = await res.json();
-        if (data.success) {
-            authToken = data.token;
-            localStorage.setItem('doopedia_token', authToken);
-            currentUser = data.user;
-            updateUI();
-            closeAuthModal();
-            showNotification('✅ Registrasi berhasil!');
-            await fetchBalance();
-        }
-        return data;
-    } catch (e) { return { success: false, error: 'Network error' }; }
 }
 
 async function login(email, password) {
@@ -471,6 +407,152 @@ function switchAuthTab(tab) {
     document.getElementById('otpForm').style.display = 'none';
 }
 
+// ==========================================
+// REGISTER FLOW
+// ==========================================
+document.getElementById('registerForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const name = document.getElementById('registerName').value;
+    const email = document.getElementById('registerEmail').value;
+    const password = document.getElementById('registerPassword').value;
+
+    if (!name || !email || !password) {
+        showNotification('⚠️ Semua field wajib diisi');
+        return;
+    }
+
+    if (password.length < 6) {
+        showNotification('⚠️ Password minimal 6 karakter');
+        return;
+    }
+
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim OTP...';
+    btn.disabled = true;
+
+    try {
+        const res = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, name, password })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            showNotification('✅ Kode OTP telah dikirim ke email Anda');
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('otpForm').style.display = 'block';
+            document.getElementById('otpEmail').value = email;
+            document.getElementById('otpPassword').value = password;
+            document.getElementById('otpName').value = name;
+            document.getElementById('otpEmailDisplay').textContent = email;
+            document.getElementById('otpCode').focus();
+        } else {
+            showNotification('❌ ' + (data.error || 'Gagal mengirim OTP'));
+        }
+    } catch (error) {
+        showNotification('❌ Error: ' + error.message);
+    } finally {
+        btn.innerHTML = '<i class="fas fa-user-plus"></i> Daftar';
+        btn.disabled = false;
+    }
+});
+
+// ==========================================
+// VERIFY OTP + AUTO LOGIN
+// ==========================================
+document.getElementById('otpForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById('otpEmail').value;
+    const password = document.getElementById('otpPassword').value;
+    const name = document.getElementById('otpName').value;
+    const otp = document.getElementById('otpCode').value;
+
+    if (!otp || otp.length < 6) {
+        showNotification('⚠️ Masukkan kode OTP 6 digit');
+        return;
+    }
+
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifikasi...';
+    btn.disabled = true;
+
+    try {
+        const res = await fetch('/api/auth/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, otp, password, name })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            authToken = data.token;
+            localStorage.setItem('doopedia_token', authToken);
+            currentUser = data.user;
+            updateUI();
+            closeAuthModal();
+            showNotification('🎉 Selamat! Akun berhasil diaktifkan!');
+            await fetchBalance();
+            renderServices();
+        } else {
+            showNotification('❌ ' + (data.error || 'Verifikasi gagal'));
+        }
+    } catch (error) {
+        showNotification('❌ Error: ' + error.message);
+    } finally {
+        btn.innerHTML = '<i class="fas fa-check"></i> Verifikasi & Login';
+        btn.disabled = false;
+    }
+});
+
+// ==========================================
+// RESEND OTP
+// ==========================================
+async function resendOTP() {
+    const email = document.getElementById('otpEmail').value;
+    const name = document.getElementById('otpName').value;
+    const password = document.getElementById('otpPassword').value;
+
+    if (!email) {
+        showNotification('⚠️ Email tidak ditemukan');
+        return;
+    }
+
+    const btn = document.querySelector('#otpForm .btn-secondary');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+    btn.disabled = true;
+
+    try {
+        const res = await fetch('/api/auth/resend-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, name, password })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            showNotification('✅ OTP baru telah dikirim ke email Anda');
+            document.getElementById('otpCode').value = '';
+            document.getElementById('otpCode').focus();
+        } else {
+            showNotification('❌ ' + (data.error || 'Gagal mengirim ulang OTP'));
+        }
+    } catch (error) {
+        showNotification('❌ Error: ' + error.message);
+    } finally {
+        btn.innerHTML = '<i class="fas fa-redo"></i> Kirim Ulang OTP';
+        btn.disabled = false;
+    }
+}
+
+// ==========================================
+// LOGIN
+// ==========================================
 document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const result = await login(
@@ -480,33 +562,8 @@ document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
     if (!result.success) showNotification('❌ ' + (result.error || 'Login gagal'));
 });
 
-document.getElementById('registerForm')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('registerEmail').value;
-    const name = document.getElementById('registerName').value;
-    const result = await register(email, name);
-    if (result.success) {
-        showNotification('✅ OTP telah dikirim ke email Anda');
-        document.getElementById('registerForm').style.display = 'none';
-        document.getElementById('otpForm').style.display = 'block';
-        document.getElementById('otpEmail').value = email;
-    } else {
-        showNotification('❌ ' + (result.error || 'Registrasi gagal'));
-    }
-});
-
-document.getElementById('otpForm')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const result = await verifyOTP(
-        document.getElementById('otpEmail').value,
-        document.getElementById('otpCode').value,
-        document.getElementById('registerPassword').value
-    );
-    if (!result.success) showNotification('❌ ' + (result.error || 'Verifikasi gagal'));
-});
-
 // ==========================================
-// DEPOSIT MODAL
+// DEPOSIT
 // ==========================================
 function openDepositModal() {
     if (!authToken || !currentUser) { openAuthModal(); return; }
@@ -523,7 +580,7 @@ function depositCustom() {
 }
 
 // ==========================================
-// SUGGEST MODAL
+// SUGGEST
 // ==========================================
 function openSuggestModal() { document.getElementById('suggestModal').classList.add('show'); }
 function closeSuggestModal() { document.getElementById('suggestModal').classList.remove('show'); }
@@ -571,6 +628,18 @@ function showNotification(message) {
     container.appendChild(notif);
     setTimeout(() => { if (notif.parentElement) notif.remove(); }, 5000);
 }
+
+// ==========================================
+// EXIT POPUP
+// ==========================================
+let exitTriggered = false;
+document.addEventListener('mouseleave', (e) => {
+    if (e.clientY < 0 && !exitTriggered && !document.getElementById('authModal').classList.contains('show')) {
+        exitTriggered = true;
+        document.getElementById('exitPopup').classList.add('show');
+    }
+});
+function closeExitPopup() { document.getElementById('exitPopup').classList.remove('show'); }
 
 // ==========================================
 // CLOSE MODAL ON OUTSIDE CLICK
