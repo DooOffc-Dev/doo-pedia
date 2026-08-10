@@ -49,6 +49,84 @@
         </div>
     </header>
 
+    <!-- HERO SLIDER -->
+    <section id="home" class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-slider">
+            <div class="hero-slides">
+                <!-- Slide 1 -->
+                <div class="hero-slide active">
+                    <div class="hero-content">
+                        <div class="hero-text">
+                            <h1>Dapatkan Kode OTP <span>Instan</span></h1>
+                            <p>Layanan penyedia nomor virtual untuk verifikasi OTP dengan harga terjangkau dan proses cepat.</p>
+                            <div class="hero-buttons">
+                                <a href="#services" class="btn btn-primary">Mulai Sekarang</a>
+                                <a href="#pricing" class="btn btn-secondary">Lihat Harga</a>
+                            </div>
+                        </div>
+                        <div class="hero-image">
+                            <img src="/doo/hero1.png" alt="Doo-Pedia OTP">
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 2 -->
+                <div class="hero-slide">
+                    <div class="hero-content">
+                        <div class="hero-text">
+                            <h1>Layanan OTP <span>Terlengkap</span></h1>
+                            <p>100+ layanan tersedia dari berbagai kategori: Games, Money, Utility, dan lainnya.</p>
+                            <div class="hero-buttons">
+                                <a href="#services" class="btn btn-primary">Lihat Layanan</a>
+                                <a href="#pricing" class="btn btn-secondary">Cek Harga</a>
+                            </div>
+                        </div>
+                        <div class="hero-image">
+                            <img src="/doo/hero2.png" alt="Doo-Pedia Layanan">
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 3 -->
+                <div class="hero-slide">
+                    <div class="hero-content">
+                        <div class="hero-text">
+                            <h1>Mudah & <span>Aman</span></h1>
+                            <p>Proses verifikasi dalam hitungan detik dengan nomor virtual terjamin keamanannya.</p>
+                            <div class="hero-buttons">
+                                <a href="#services" class="btn btn-primary">Mulai Sekarang</a>
+                                <a href="#contact" class="btn btn-secondary">Hubungi Kami</a>
+                            </div>
+                        </div>
+                        <div class="hero-image">
+                            <img src="/doo/hero3.png" alt="Doo-Pedia Aman">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="slider-btn prev" onclick="changeSlide(-1)">❮</button>
+            <button class="slider-btn next" onclick="changeSlide(1)">❯</button>
+            <div class="slider-dots">
+                <span class="dot active" onclick="goToSlide(0)"></span>
+                <span class="dot" onclick="goToSlide(1)"></span>
+                <span class="dot" onclick="goToSlide(2)"></span>
+            </div>
+        </div>
+        <div class="hero-stats">
+            <div class="stat">
+                <span class="stat-number" data-count="50">0</span>
+                <span class="stat-label">Negara Tersedia</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number" data-count="1000">0</span>
+                <span class="stat-label">Nomor Virtual</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number" data-count="5000">0</span>
+                <span class="stat-label">User Aktif</span>
+            </div>
+        </div>
+    </section>
+
     <!-- CATEGORY TABS -->
     <div class="category-tabs">
         <button class="category-btn active" data-category="all" onclick="filterCategory('all')">
@@ -106,30 +184,80 @@
                 <button id="registerTab" class="tab-btn" onclick="switchAuthTab('register')">Daftar</button>
             </div>
             <input type="hidden" id="authStep" value="login">
+            
+            <!-- LOGIN FORM -->
             <form id="loginForm" class="auth-form">
-                <div class="form-group"><label>Email</label><input type="email" id="loginEmail" placeholder="email@example.com" required></div>
-                <div class="form-group"><label>Password</label><input type="password" id="loginPassword" placeholder="••••••••" required></div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" placeholder="email@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" required>
+                </div>
                 <button type="submit" class="btn btn-primary" style="width:100%;">Login</button>
             </form>
+            
+            <!-- REGISTER FORM - STEP 1 -->
             <form id="registerForm" class="auth-form" style="display:none;">
-                <div class="form-group"><label>Nama</label><input type="text" id="registerName" placeholder="Nama lengkap" required></div>
-                <div class="form-group"><label>Email</label><input type="email" id="registerEmail" placeholder="email@example.com" required></div>
-                <button type="submit" class="btn btn-primary" style="width:100%;"><i class="fas fa-envelope"></i> Kirim OTP</button>
+                <div class="form-group">
+                    <label>Nama Lengkap</label>
+                    <input type="text" id="registerName" placeholder="Nama lengkap" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="registerEmail" placeholder="email@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="registerPassword" placeholder="Minimal 6 karakter" minlength="6" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;">
+                    <i class="fas fa-user-plus"></i> Daftar
+                </button>
             </form>
+            
+            <!-- OTP FORM - STEP 2 -->
             <form id="otpForm" class="auth-form" style="display:none;">
-                <div class="form-group"><label>Kode OTP</label><input type="text" id="otpCode" placeholder="6 digit kode" maxlength="6" required><input type="hidden" id="otpEmail"></div>
-                <div class="form-group"><label>Buat Password</label><input type="password" id="registerPassword" placeholder="Min 6 karakter" minlength="6" required></div>
-                <button type="submit" class="btn btn-primary" style="width:100%;"><i class="fas fa-check"></i> Verifikasi & Daftar</button>
+                <div style="text-align:center;margin-bottom:16px;">
+                    <i class="fas fa-envelope" style="font-size:40px;color:#0088FF;display:block;margin-bottom:8px;"></i>
+                    <p style="color:#8899bb;font-size:14px;">
+                        Kode OTP telah dikirim ke <br>
+                        <strong id="otpEmailDisplay" style="color:#fff;"></strong>
+                    </p>
+                    <p style="color:#445566;font-size:12px;">⏱️ Berlaku 5 menit</p>
+                </div>
+                <div class="form-group">
+                    <label>Kode OTP</label>
+                    <input type="text" id="otpCode" placeholder="6 digit kode" maxlength="6" required style="text-align:center;font-size:24px;letter-spacing:8px;font-weight:700;">
+                    <input type="hidden" id="otpEmail">
+                    <input type="hidden" id="otpPassword">
+                    <input type="hidden" id="otpName">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;">
+                    <i class="fas fa-check"></i> Verifikasi & Login
+                </button>
+                <button type="button" class="btn btn-secondary" style="width:100%;margin-top:8px;" onclick="resendOTP()">
+                    <i class="fas fa-redo"></i> Kirim Ulang OTP
+                </button>
             </form>
-            <div class="modal-footer"><p>Dengan mendaftar, Anda menyetujui <a href="#">Syarat & Ketentuan</a></p></div>
+            
+            <div class="modal-footer">
+                <p>Dengan mendaftar, Anda menyetujui <a href="#">Syarat & Ketentuan</a></p>
+            </div>
         </div>
     </div>
 
     <!-- DEPOSIT MODAL -->
     <div id="depositModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header"><h2>💳 Deposit</h2><button onclick="closeDepositModal()" class="modal-close">&times;</button></div>
-            <div class="deposit-info"><p>Saldo saat ini: <strong id="depositBalance">Rp 0</strong></p></div>
+            <div class="modal-header">
+                <h2>💳 Deposit</h2>
+                <button onclick="closeDepositModal()" class="modal-close">&times;</button>
+            </div>
+            <div class="deposit-info">
+                <p>Saldo saat ini: <strong id="depositBalance">Rp 0</strong></p>
+            </div>
             <div class="deposit-options">
                 <button class="deposit-option" onclick="depositAmount(10000)"><span class="amount">Rp 10.000</span><span class="bonus">+ Bonus 0%</span></button>
                 <button class="deposit-option" onclick="depositAmount(25000)"><span class="amount">Rp 25.000</span><span class="bonus">+ Bonus 5%</span></button>
@@ -138,23 +266,58 @@
                 <button class="deposit-option" onclick="depositAmount(250000)"><span class="amount">Rp 250.000</span><span class="bonus">+ Bonus 20%</span></button>
                 <button class="deposit-option" onclick="depositAmount(500000)"><span class="amount">Rp 500.000</span><span class="bonus">+ Bonus 25%</span></button>
             </div>
-            <div class="deposit-custom"><input type="number" id="customDeposit" placeholder="Masukkan nominal lain"><button onclick="depositCustom()" class="btn btn-primary">Deposit</button></div>
-            <div class="deposit-methods"><p>Metode Pembayaran:</p><div class="payment-icons"><i class="fas fa-university"></i><i class="fas fa-mobile-alt"></i><i class="fab fa-cc-visa"></i><i class="fab fa-cc-mastercard"></i></div></div>
+            <div class="deposit-custom">
+                <input type="number" id="customDeposit" placeholder="Masukkan nominal lain">
+                <button onclick="depositCustom()" class="btn btn-primary">Deposit</button>
+            </div>
+            <div class="deposit-methods">
+                <p>Metode Pembayaran:</p>
+                <div class="payment-icons">
+                    <i class="fas fa-university"></i>
+                    <i class="fas fa-mobile-alt"></i>
+                    <i class="fab fa-cc-visa"></i>
+                    <i class="fab fa-cc-mastercard"></i>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- SUGGEST MODAL -->
     <div id="suggestModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header"><h2>💡 Kasih Saran Produk Baru</h2><button onclick="closeSuggestModal()" class="modal-close">&times;</button></div>
+            <div class="modal-header">
+                <h2>💡 Kasih Saran Produk Baru</h2>
+                <button onclick="closeSuggestModal()" class="modal-close">&times;</button>
+            </div>
             <form id="suggestForm" onsubmit="submitSuggestion(event)">
-                <div class="form-group"><label>Nama Produk / Layanan</label><input type="text" id="suggestName" placeholder="Contoh: Spotify, Netflix, dll" required></div>
-                <div class="form-group"><label>Kategori</label><select id="suggestCategory" required><option value="games">Games</option><option value="money">Money / Payment</option><option value="utility">Utility / Sosial Media</option><option value="other">Lainnya</option></select></div>
-                <div class="form-group"><label>Deskripsi (opsional)</label><textarea id="suggestDesc" rows="3" placeholder="Jelaskan produk ini digunakan untuk apa..."></textarea></div>
-                <div class="form-group"><label>Email Kamu</label><input type="email" id="suggestEmail" placeholder="email@example.com" required></div>
-                <button type="submit" class="btn btn-primary" style="width:100%;"><i class="fas fa-paper-plane"></i> Kirim Saran</button>
+                <div class="form-group">
+                    <label>Nama Produk / Layanan</label>
+                    <input type="text" id="suggestName" placeholder="Contoh: Spotify, Netflix, dll" required>
+                </div>
+                <div class="form-group">
+                    <label>Kategori</label>
+                    <select id="suggestCategory" required>
+                        <option value="games">Games</option>
+                        <option value="money">Money / Payment</option>
+                        <option value="utility">Utility / Sosial Media</option>
+                        <option value="other">Lainnya</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Deskripsi (opsional)</label>
+                    <textarea id="suggestDesc" rows="3" placeholder="Jelaskan produk ini digunakan untuk apa..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Email Kamu</label>
+                    <input type="email" id="suggestEmail" placeholder="email@example.com" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;">
+                    <i class="fas fa-paper-plane"></i> Kirim Saran
+                </button>
             </form>
-            <div class="modal-footer"><p>Saran akan kami review dan tambahkan jika memungkinkan</p></div>
+            <div class="modal-footer">
+                <p>Saran akan kami review dan tambahkan jika memungkinkan</p>
+            </div>
         </div>
     </div>
 
@@ -164,7 +327,7 @@
     <!-- EXIT POPUP -->
     <div id="exitPopup" class="exit-popup">
         <div class="exit-popup-content">
-            <img src="/doo/logo.png" alt="Doo-Pedia">
+            <img src="/doo/doo.png" alt="Doo-Pedia">
             <h3>Terima Kasih Telah Mengunjungi</h3>
             <p>Doo-Pedia - Solusi OTP Instan</p>
             <button onclick="closeExitPopup()">Kembali</button>
