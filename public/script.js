@@ -9,6 +9,24 @@ let currentSlide = 0;
 let slideInterval;
 
 // ==========================================
+// JAM REAL TIME
+// ==========================================
+function updateClock() {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    const timeString = `${hours}:${minutes}:${seconds}`;
+    
+    const clockDisplay = document.getElementById('clockDisplay');
+    if (clockDisplay) {
+        clockDisplay.textContent = timeString;
+    }
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ==========================================
 // PRODUCT IMAGES
 // ==========================================
 const productImages = {
@@ -104,15 +122,11 @@ function goToSlide(index) {
     slideInterval = setInterval(() => changeSlide(1), 5000);
 }
 
-// Pause on hover
-document.querySelector('.hero-slider')?.addEventListener('mouseenter', () => {
-    clearInterval(slideInterval);
-});
+document.querySelector('.hero-slider')?.addEventListener('mouseenter', () => clearInterval(slideInterval));
 document.querySelector('.hero-slider')?.addEventListener('mouseleave', () => {
     slideInterval = setInterval(() => changeSlide(1), 5000);
 });
 
-// Keyboard navigation
 document.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft') changeSlide(-1);
     if (e.key === 'ArrowRight') changeSlide(1);
@@ -359,6 +373,9 @@ function logout() {
     showNotification('👋 Logout berhasil');
 }
 
+// ==========================================
+// UPDATE UI - PAKE DP.PNG
+// ==========================================
 function updateUI() {
     const authBtn = document.getElementById('authBtn');
     const headerUser = document.getElementById('headerUser');
@@ -366,12 +383,18 @@ function updateUI() {
     const balanceDisplay = document.getElementById('headerBalance');
     
     if (currentUser) {
-        authBtn.innerHTML = `<i class="fas fa-user-check"></i>`;
+        authBtn.innerHTML = `
+            <img src="/doo/dp.png" alt="${currentUser.name}" 
+                 style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:2px solid #0088FF;">
+        `;
+        authBtn.title = currentUser.name;
         headerUser.style.display = 'flex';
         userName.textContent = currentUser.name || 'User';
         balanceDisplay.innerHTML = `<i class="fas fa-coins"></i> <span>Rp ${currentUser.balance || 0}</span>`;
     } else {
-        authBtn.innerHTML = `<i class="fas fa-user"></i>`;
+        authBtn.innerHTML = `
+            <img src="/doo/dp.png" alt="Profile" style="width:22px;height:22px;border-radius:50%;object-fit:cover;">
+        `;
         headerUser.style.display = 'none';
         balanceDisplay.innerHTML = `<i class="fas fa-coins"></i> <span>Rp 0</span>`;
     }
