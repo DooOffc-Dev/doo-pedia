@@ -1,0 +1,98 @@
+/* ========================================== */
+/* HERO TEXT - RESPONSIVE FIX */
+/* ========================================== */
+
+.hero-text h1 {
+    font-size: 48px;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 12px;
+}
+
+.hero-text h1 span {
+    color: #0088FF;
+}
+
+.hero-text p {
+    font-size: 18px;
+    color: #8899bb;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    max-width: 90%;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.hero-buttons .btn {
+    padding: 12px 28px;
+    font-size: 15px;
+}
+
+/* ========================================== */
+/* RESPONSIVE HP */
+/* ========================================== */
+
+@media (max-width: 768px) {
+    .hero-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 20px !important;
+        padding: 10px 0 !important;
+    }
+    
+    .hero-text h1 {
+        font-size: 32px !important;
+    }
+    
+    .hero-text p {
+        font-size: 15px !important;
+        max-width: 100% !important;
+        max-height: none !important;
+    }
+    
+    .hero-buttons {
+        justify-content: center;
+    }
+    
+    .hero-buttons .btn {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+    
+    .hero-image img {
+        max-height: 180px !important;
+    }
+    
+    .hero-stats {
+        flex-wrap: wrap;
+        gap: 16px;
+        padding: 16px 24px;
+    }
+    
+    .stat-number {
+        font-size: 26px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-text h1 {
+        font-size: 26px !important;
+    }
+    
+    .hero-text p {
+        font-size: 13px !important;
+    }
+    
+    .hero-buttons .btn {
+        padding: 8px 16px;
+        font-size: 12px;
+    }
+    
+    .hero-image img {
+        max-height: 140px !important;
+    }
+}
