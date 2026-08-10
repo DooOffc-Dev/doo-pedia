@@ -1,5 +1,5 @@
 /* ========================================== */
-/* HERO TEXT - RESPONSIVE FIX */
+/* HERO TEXT - RESPONSIVE FIX (TAMBAHAN) */
 /* ========================================== */
 
 .hero-text h1 {
@@ -33,7 +33,7 @@
 }
 
 /* ========================================== */
-/* RESPONSIVE HP */
+/* RESPONSIVE HP UNTUK HERO */
 /* ========================================== */
 
 @media (max-width: 768px) {
