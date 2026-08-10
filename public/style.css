@@ -382,3 +382,102 @@ body {
 
 /* ========================================== */
 /* DEPOSIT */
+/* ========================================== */
+.deposit-info { text-align: center; padding: 16px; background: rgba(0, 102, 204, 0.03); border-radius: 12px; margin-bottom: 20px; }
+.deposit-info strong { color: #0088FF; font-size: 20px; }
+.deposit-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; }
+.deposit-option { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(0, 102, 204, 0.06); border-radius: 10px; padding: 12px; text-align: center; cursor: pointer; transition: all 0.3s; font-family: 'Inter', sans-serif; }
+.deposit-option:hover { border-color: rgba(0, 102, 204, 0.15); background: rgba(0, 102, 204, 0.03); }
+.deposit-option .amount { display: block; font-size: 16px; font-weight: 700; color: #fff; }
+.deposit-option .bonus { display: block; font-size: 11px; color: #22c55e; margin-top: 2px; }
+.deposit-custom { display: flex; gap: 10px; margin-bottom: 16px; }
+.deposit-custom input { flex: 1; padding: 10px 14px; background: #0a0e17; border: 1px solid rgba(0, 102, 204, 0.06); border-radius: 10px; color: #fff; font-size: 14px; font-family: 'Inter', sans-serif; }
+.deposit-custom input:focus { outline: none; border-color: rgba(0, 102, 204, 0.2); }
+.deposit-methods { text-align: center; padding-top: 16px; border-top: 1px solid rgba(0, 102, 204, 0.05); }
+.deposit-methods p { color: #445566; font-size: 13px; margin-bottom: 10px; }
+.payment-icons { display: flex; justify-content: center; gap: 16px; font-size: 28px; color: #334455; }
+
+/* ========================================== */
+/* NOTIFICATION */
+/* ========================================== */
+#notificationContainer {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 360px;
+}
+.notification {
+    padding: 14px 18px;
+    border-radius: 12px;
+    background: #0f1a2e;
+    border: 1px solid rgba(0, 102, 204, 0.08);
+    color: #fff;
+    font-size: 14px;
+    animation: slideIn 0.3s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+.notification button { background: none; border: none; color: #445566; font-size: 18px; cursor: pointer; }
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+/* ========================================== */
+/* EXIT POPUP */
+/* ========================================== */
+.exit-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+}
+.exit-popup.show { display: flex; }
+.exit-popup-content {
+    text-align: center;
+    padding: 40px;
+    background: #0f1a2e;
+    border-radius: 20px;
+    border: 1px solid rgba(0, 102, 204, 0.08);
+    max-width: 380px;
+    animation: modalIn 0.4s ease;
+}
+.exit-popup-content img { width: 80px; border-radius: 16px; margin-bottom: 16px; }
+.exit-popup-content h3 { font-size: 20px; margin-bottom: 8px; }
+.exit-popup-content p { color: #445566; margin-bottom: 20px; }
+.exit-popup-content button { padding: 10px 36px; border: none; border-radius: 10px; background: linear-gradient(135deg, #0066CC, #0088FF); color: #fff; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+.exit-popup-content button:hover { transform: scale(1.05); }
+
+/* ========================================== */
+/* RESPONSIVE */
+/* ========================================== */
+@media (max-width: 768px) {
+    .hero-content { flex-direction: column; text-align: center; }
+    .hero-text h1 { font-size: 32px; }
+    .hero-buttons { justify-content: center; }
+    .hero-image img { max-height: 200px; }
+    .slider-btn.prev { left: 0; }
+    .slider-btn.next { right: 0; }
+    .slider-btn { width: 36px; height: 36px; font-size: 14px; }
+    .hero-stats { flex-wrap: wrap; gap: 20px; padding: 20px; }
+    .stat-number { font-size: 28px; }
+    .services-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .service-card { padding: 12px; }
+    .service-card .icon { width: 40px; height: 40px; }
+    .header-balance { padding: 10px 12px; }
+    .balance-amount { font-size: 16px; }
+    .deposit-options { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 600px) {
+    .services-grid { grid-template-columns: repeat(3, 1fr); }
+}
