@@ -19,7 +19,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ==========================================
-// DATABASE - PAKE MEMORY (VERCEL FIX)
+// DATABASE - MEMORY (VERCEL FIX)
 // ==========================================
 let dbData = {
     users: [],
@@ -28,7 +28,6 @@ let dbData = {
     suggestions: []
 };
 
-// Coba baca dari file kalo ada (local), kalo ga ada pake memory
 try {
     const DB_PATH = path.join(__dirname, '../database.json');
     if (fs.existsSync(DB_PATH)) {
@@ -40,19 +39,13 @@ try {
     console.log('⚠️ Using in-memory database');
 }
 
-function readDB() {
-    return dbData;
-}
-
+function readDB() { return dbData; }
 function writeDB(data) {
     dbData = data;
-    // Coba simpan ke file (local)
     try {
         const DB_PATH = path.join(__dirname, '../database.json');
         fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
-    } catch (e) {
-        // Di Vercel ga bisa write file, skip
-    }
+    } catch (e) {}
 }
 
 // ==========================================
@@ -62,7 +55,6 @@ let transporter = null;
 let isEmailConfigured = false;
 
 try {
-    // CEK APAKAH EMAIL DI SET
     const emailUser = process.env.EMAIL_USER;
     const emailPass = process.env.EMAIL_PASS;
     
@@ -71,10 +63,7 @@ try {
             host: process.env.EMAIL_HOST || 'smtp.gmail.com',
             port: parseInt(process.env.EMAIL_PORT) || 587,
             secure: process.env.EMAIL_SECURE === 'true' || false,
-            auth: {
-                user: emailUser,
-                pass: emailPass
-            },
+            auth: { user: emailUser, pass: emailPass },
             tls: { rejectUnauthorized: false }
         });
 
@@ -97,7 +86,7 @@ try {
 }
 
 // ==========================================
-// API CONFIG
+// API CONFIG - RUMAHOTP
 // ==========================================
 const API_BASE = process.env.API_BASE_URL || 'https://www.rumahotp.io/api';
 const API_KEY = process.env.API_KEY || 'rk-dev-olSqHdTSr1ZtG7OV7S8SzBmVhXiIO3QZ';
@@ -114,10 +103,9 @@ function hashPassword(password) {
 }
 
 // ==========================================
-// SEND OTP EMAIL (REAL + MOCK FALLBACK)
+// SEND OTP EMAIL
 // ==========================================
 async function sendOTPEmail(email, otp, name = 'User') {
-    // KALO EMAIL GA DI SET, PAKE MOCK MODE
     if (!isEmailConfigured || !transporter) {
         console.log(`========================================`);
         console.log(`📧 [MOCK] OTP untuk ${email}`);
@@ -197,20 +185,16 @@ async function sendOTPEmail(email, otp, name = 'User') {
         </html>
         `;
 
-        const mailOptions = {
+        await transporter.sendMail({
             from: process.env.EMAIL_FROM || `"DooPedia Nokos" <${process.env.EMAIL_USER}>`,
             to: email,
             subject: '🔐 Kode Verifikasi DooPedia',
             html: htmlContent
-        };
-
-        await transporter.sendMail(mailOptions);
+        });
         console.log(`✅ Email OTP terkirim ke ${email}`);
         return { success: true, mock: false };
-
     } catch (error) {
         console.error('❌ Email send error:', error.message);
-        // FALLBACK KE MOCK MODE KALAU EMAIL GAGAL
         console.log(`📧 [MOCK FALLBACK] OTP untuk ${email}: ${otp}`);
         return { success: true, mock: true, otp: otp };
     }
@@ -220,29 +204,24 @@ async function sendOTPEmail(email, otp, name = 'User') {
 // AUTH ROUTES
 // ==========================================
 
-// REGISTER
 app.post('/api/auth/register', async (req, res) => {
     try {
         const { email, name, password } = req.body;
-
         console.log('📝 Register attempt:', { email, name });
 
         if (!email || !password) {
             return res.status(400).json({ success: false, error: 'Email dan password wajib diisi' });
         }
-
         if (password.length < 6) {
             return res.status(400).json({ success: false, error: 'Password minimal 6 karakter' });
         }
 
         const db = readDB();
-
         if (db.users.some(u => u.email === email && !u.isTemp)) {
             return res.status(400).json({ success: false, error: 'Email sudah terdaftar' });
         }
 
         db.users = db.users.filter(u => u.email !== email || !u.isTemp);
-
         const otp = generateOTP();
         const expiresAt = Date.now() + 5 * 60 * 1000;
         const hashedPassword = hashPassword(password);
@@ -258,104 +237,78 @@ app.post('/api/auth/register', async (req, res) => {
         });
         writeDB(db);
 
-        // Kirim email
         const emailResult = await sendOTPEmail(email, otp, name || email.split('@')[0]);
-
-        // Response
         const response = {
             success: true,
-            message: emailResult.mock 
-                ? 'TEST MODE: Cek console untuk OTP' 
-                : 'Kode OTP telah dikirim ke email Anda',
+            message: emailResult.mock ? 'TEST MODE: Cek console untuk OTP' : 'Kode OTP telah dikirim ke email Anda',
             email: email,
             expiresIn: '5 menit'
         };
-
-        // KALO MOCK MODE, KASIH OTP DI RESPONSE
         if (emailResult.mock && emailResult.otp) {
             response.mock = true;
             response.otp = emailResult.otp;
         }
-
         res.json(response);
-
     } catch (error) {
         console.error('❌ Register error:', error);
         res.status(500).json({ success: false, error: 'Gagal mengirim OTP: ' + error.message });
     }
 });
 
-// RESEND OTP
 app.post('/api/auth/resend-otp', async (req, res) => {
     try {
         const { email, name, password } = req.body;
-
         if (!email) {
             return res.status(400).json({ success: false, error: 'Email wajib diisi' });
         }
 
         const db = readDB();
         const tempUser = db.users.find(u => u.email === email && u.isTemp === true);
-
         if (!tempUser) {
             return res.status(400).json({ success: false, error: 'Email tidak terdaftar untuk verifikasi' });
         }
 
         const newOtp = generateOTP();
         const expiresAt = Date.now() + 5 * 60 * 1000;
-
         tempUser.otp = newOtp;
         tempUser.otpExpires = expiresAt;
-        
         if (password) {
             tempUser.password = hashPassword(password);
         }
-
         writeDB(db);
 
         const emailResult = await sendOTPEmail(email, newOtp, tempUser.name || email.split('@')[0]);
-
         const response = {
             success: true,
-            message: emailResult.mock 
-                ? 'TEST MODE: Cek console untuk OTP' 
-                : 'OTP baru telah dikirim',
+            message: emailResult.mock ? 'TEST MODE: Cek console untuk OTP' : 'OTP baru telah dikirim',
             expiresIn: '5 menit'
         };
-
         if (emailResult.mock && emailResult.otp) {
             response.mock = true;
             response.otp = emailResult.otp;
         }
-
         res.json(response);
-
     } catch (error) {
         console.error('❌ Resend OTP error:', error);
         res.status(500).json({ success: false, error: 'Gagal mengirim ulang OTP: ' + error.message });
     }
 });
 
-// VERIFY
 app.post('/api/auth/verify', async (req, res) => {
     try {
         const { email, otp, password, name } = req.body;
-
         if (!email || !otp || !password) {
             return res.status(400).json({ success: false, error: 'Email, OTP, dan password wajib diisi' });
         }
 
         const db = readDB();
         const tempUser = db.users.find(u => u.email === email && u.isTemp === true);
-
         if (!tempUser) {
             return res.status(400).json({ success: false, error: 'Email tidak terdaftar atau sudah diverifikasi' });
         }
-
         if (tempUser.otp !== otp) {
             return res.status(400).json({ success: false, error: 'Kode OTP salah' });
         }
-
         if (Date.now() > tempUser.otpExpires) {
             db.users = db.users.filter(u => u.email !== email);
             writeDB(db);
@@ -399,14 +352,12 @@ app.post('/api/auth/verify', async (req, res) => {
                 balance: newUser.balance
             }
         });
-
     } catch (error) {
         console.error('❌ Verify error:', error);
         res.status(500).json({ success: false, error: 'Verifikasi gagal: ' + error.message });
     }
 });
 
-// LOGIN
 app.post('/api/auth/login', async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -442,14 +393,12 @@ app.post('/api/auth/login', async (req, res) => {
                 balance: user.balance || 0
             }
         });
-
     } catch (error) {
         console.error('❌ Login error:', error);
         res.status(500).json({ success: false, error: 'Login gagal: ' + error.message });
     }
 });
 
-// LOGOUT
 app.post('/api/auth/logout', async (req, res) => {
     try {
         const token = req.headers.authorization?.replace('Bearer ', '');
@@ -458,14 +407,12 @@ app.post('/api/auth/logout', async (req, res) => {
         const db = readDB();
         db.sessions = (db.sessions || []).filter(s => s.token !== token);
         writeDB(db);
-
         res.json({ success: true, message: 'Logout berhasil' });
     } catch (error) {
         res.status(500).json({ success: false, error: 'Logout gagal' });
     }
 });
 
-// GET USER
 app.get('/api/auth/me', async (req, res) => {
     try {
         const token = req.headers.authorization?.replace('Bearer ', '');
@@ -485,7 +432,7 @@ app.get('/api/auth/me', async (req, res) => {
 });
 
 // ==========================================
-// BALANCE
+// BALANCE - RUMAHOTP
 // ==========================================
 app.get('/api/balance', async (req, res) => {
     try {
@@ -496,27 +443,32 @@ app.get('/api/balance', async (req, res) => {
         const session = (db.sessions || []).find(s => s.token === token);
         if (!session) return res.status(401).json({ success: false, error: 'Session expired' });
 
-        try {
-            const response = await axios.get(`${API_BASE}/balance`, {
-                headers: { 'Authorization': `Bearer ${API_KEY}` }
-            });
+        const response = await axios.get(`${API_BASE}/balance`, {
+            headers: { 'Authorization': `Bearer ${API_KEY}` }
+        });
+        
+        const user = db.users.find(u => u.id === session.userId);
+        if (user) {
+            user.balance = response.data.balance || 0;
+            writeDB(db);
+        }
+        res.json({ success: true, balance: response.data.balance || 0, currency: response.data.currency || 'IDR' });
+    } catch (error) {
+        const db = readDB();
+        const token = req.headers.authorization?.replace('Bearer ', '');
+        const session = (db.sessions || []).find(s => s.token === token);
+        if (session) {
             const user = db.users.find(u => u.id === session.userId);
             if (user) {
-                user.balance = response.data.balance || 0;
-                writeDB(db);
+                return res.json({ success: true, balance: user.balance || 0, currency: 'IDR' });
             }
-            res.json({ success: true, balance: response.data.balance || 0, currency: response.data.currency || 'IDR' });
-        } catch (apiError) {
-            const user = db.users.find(u => u.id === session.userId);
-            res.json({ success: true, balance: user?.balance || 0, currency: 'IDR' });
         }
-    } catch (error) {
         res.status(500).json({ success: false, error: 'Gagal mengambil saldo' });
     }
 });
 
 // ==========================================
-// SERVICES
+// SERVICES - RUMAHOTP
 // ==========================================
 app.get('/api/services', async (req, res) => {
     try {
@@ -525,6 +477,7 @@ app.get('/api/services', async (req, res) => {
         });
         res.json(response.data);
     } catch (error) {
+        console.error('Services error:', error.message);
         res.json({
             services: [
                 { id: 1, name: 'WhatsApp', country: 'Indonesia', price: 2000 },
@@ -563,7 +516,7 @@ app.get('/api/services', async (req, res) => {
 });
 
 // ==========================================
-// AUTO ORDER
+// ORDER - RUMAHOTP
 // ==========================================
 app.post('/api/order-auto', async (req, res) => {
     try {
@@ -579,6 +532,7 @@ app.post('/api/order-auto', async (req, res) => {
         });
         res.json({ success: true, ...response.data });
     } catch (error) {
+        console.error('Order error:', error.message);
         res.status(500).json({ success: false, error: 'Gagal order' });
     }
 });
@@ -610,30 +564,13 @@ app.post('/api/contact', async (req, res) => {
             return res.json({ success: true, message: 'Pesan terkirim! (TEST MODE)' });
         }
 
-        const htmlContent = `
-        <!DOCTYPE html>
-        <html><head><meta charset="UTF-8"><title>Pesan Kontak - DooPedia</title>
-        <style>body{font-family:Arial,sans-serif;background:#0a0e17;padding:20px}.container{max-width:560px;margin:0 auto;background:#0f1a2e;border-radius:24px;overflow:hidden;border:1px solid rgba(0,102,204,0.1)}.header{background:linear-gradient(135deg,#0a0e17,#0f1a2e);padding:30px;text-align:center;border-bottom:4px solid #0088FF}.header h1{color:#fff;font-size:24px}.header h1 span{color:#0088FF}.header p{color:rgba(255,255,255,0.6)}.body{padding:30px;background:#0f1a2e}.field{background:rgba(0,136,255,0.03);border-radius:12px;padding:14px 16px;margin-bottom:12px;border:1px solid rgba(0,136,255,0.05)}.field .label{font-size:11px;font-weight:600;color:#445566;text-transform:uppercase}.field .value{font-size:15px;color:#ffffff;margin-top:4px}.footer{background:#0a0e17;padding:16px 30px;text-align:center;border-top:1px solid rgba(0,136,255,0.05)}.footer p{color:#445566;font-size:11px}.footer .brand{font-weight:700;color:#fff}.footer .brand span{color:#0088FF}</style>
-        </head><body>
-        <div class="container">
-            <div class="header"><h1>✦ Doo<span>Pedia</span></h1><p>📩 Pesan Kontak Baru</p></div>
-            <div class="body">
-                <div class="field"><div class="label">👤 Nama</div><div class="value"><strong>${name}</strong></div></div>
-                <div class="field"><div class="label">📧 Email</div><div class="value">${email}</div></div>
-                <div class="field"><div class="label">💬 Pesan</div><div class="value">${message}</div></div>
-                <div class="field"><div class="label">📅 Dikirim Pada</div><div class="value">${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}</div></div>
-            </div>
-            <div class="footer"><p><span class="brand">✦ Doo<span>Pedia</span></span> — Solusi OTP Instan</p></div>
-        </div></body></html>`;
-
         await transporter.sendMail({
             from: process.env.EMAIL_FROM || `"DooPedia Nokos" <${process.env.EMAIL_USER}>`,
             to: process.env.SUPPORT_EMAIL || 'csdoopedia@gmail.com',
             subject: `📩 Pesan Kontak dari ${name}`,
-            html: htmlContent,
+            html: `<h3>Pesan dari ${name}</h3><p>${message}</p><p>Email: ${email}</p>`,
             replyTo: email
         });
-
         res.json({ success: true, message: 'Pesan terkirim!' });
     } catch (error) {
         res.status(500).json({ success: false, error: 'Gagal mengirim pesan' });
@@ -652,28 +589,11 @@ app.post('/api/suggest', async (req, res) => {
             return res.json({ success: true, message: 'Saran berhasil dikirim! (TEST MODE)' });
         }
 
-        const htmlContent = `
-        <!DOCTYPE html>
-        <html><head><meta charset="UTF-8"><title>Saran Produk - DooPedia</title>
-        <style>body{font-family:Arial,sans-serif;background:#0a0e17;padding:20px}.container{max-width:560px;margin:0 auto;background:#0f1a2e;border-radius:24px;overflow:hidden;border:1px solid rgba(0,102,204,0.1)}.header{background:linear-gradient(135deg,#0a0e17,#0f1a2e);padding:30px;text-align:center;border-bottom:4px solid #0088FF}.header h1{color:#fff;font-size:24px}.header h1 span{color:#0088FF}.header p{color:rgba(255,255,255,0.6)}.body{padding:30px;background:#0f1a2e}.field{background:rgba(0,136,255,0.03);border-radius:12px;padding:14px 16px;margin-bottom:12px;border:1px solid rgba(0,136,255,0.05)}.field .label{font-size:11px;font-weight:600;color:#445566;text-transform:uppercase}.field .value{font-size:15px;color:#ffffff;margin-top:4px}.footer{background:#0a0e17;padding:16px 30px;text-align:center;border-top:1px solid rgba(0,136,255,0.05)}.footer p{color:#445566;font-size:11px}.footer .brand{font-weight:700;color:#fff}.footer .brand span{color:#0088FF}</style>
-        </head><body>
-        <div class="container">
-            <div class="header"><h1>✦ Doo<span>Pedia</span></h1><p>💡 Saran Produk Baru</p></div>
-            <div class="body">
-                <div class="field"><div class="label">📌 Nama Produk</div><div class="value"><strong>${name}</strong></div></div>
-                <div class="field"><div class="label">📂 Kategori</div><div class="value">${category || 'Lainnya'}</div></div>
-                ${desc ? `<div class="field"><div class="label">📝 Deskripsi</div><div class="value">${desc}</div></div>` : ''}
-                <div class="field"><div class="label">📧 Dari Email</div><div class="value">${email}</div></div>
-                <div class="field"><div class="label">📅 Dikirim Pada</div><div class="value">${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}</div></div>
-            </div>
-            <div class="footer"><p><span class="brand">✦ Doo<span>Pedia</span></span> — Solusi OTP Instan</p></div>
-        </div></body></html>`;
-
         await transporter.sendMail({
             from: process.env.EMAIL_FROM || `"DooPedia Nokos" <${process.env.EMAIL_USER}>`,
             to: process.env.SUPPORT_EMAIL || 'csdoopedia@gmail.com',
             subject: `💡 Saran Produk Baru: ${name}`,
-            html: htmlContent,
+            html: `<h3>Saran Produk: ${name}</h3><p>Kategori: ${category}</p><p>Deskripsi: ${desc}</p><p>Dari: ${email}</p>`,
             replyTo: email
         });
 
@@ -689,7 +609,7 @@ app.post('/api/suggest', async (req, res) => {
 });
 
 // ==========================================
-// ROOT TEST
+// TEST
 // ==========================================
 app.get('/api/test', (req, res) => {
     res.json({ 
@@ -706,24 +626,11 @@ app.get('/api/test', (req, res) => {
 // ==========================================
 app.use((err, req, res, next) => {
     console.error('❌ Server Error:', err.message);
-    console.error('Stack:', err.stack);
-    res.status(500).json({
-        success: false,
-        error: 'Internal server error',
-        message: err.message
-    });
+    res.status(500).json({ success: false, error: 'Internal server error', message: err.message });
 });
 
 app.use((req, res) => {
-    console.log('❌ 404:', req.method, req.path);
-    res.status(404).json({
-        success: false,
-        error: 'Endpoint not found',
-        path: req.path
-    });
+    res.status(404).json({ success: false, error: 'Endpoint not found', path: req.path });
 });
 
-// ==========================================
-// EXPORT
-// ==========================================
 module.exports = app;
