@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Doo-Pedia - OTP Instan</title>
+    <title>Doo-Pedia - Nomor Virtual</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -88,9 +88,9 @@
             </div>
             <div class="status-details">
                 <span>📱 Layanan <span class="status-ms">Nomor Virtual</span></span>
-                <span>🇮🇩 Indonesia <span class="status-ms">Tersedia</span></span>
-                <span>🇺🇸 Global <span class="status-ms">Tersedia</span></span>
+                <span>🌍 180+ <span class="status-ms">Negara</span></span>
                 <span>⚡ Proses <span class="status-ms">Instan</span></span>
+                <span>💳 Harga <span class="status-ms">Mulai Rp 150</span></span>
             </div>
         </div>
     </section>
@@ -98,16 +98,16 @@
     <!-- CATEGORY TABS -->
     <div class="category-tabs">
         <button class="category-btn active" data-category="all" onclick="filterCategory('all')">
-            <i class="fas fa-th"></i> Semua
+            <i class="fas fa-th"></i> Semua Layanan
         </button>
-        <button class="category-btn" data-category="games" onclick="filterCategory('games')">
-            <i class="fas fa-gamepad"></i> Games
+        <button class="category-btn" data-category="sosmed" onclick="filterCategory('sosmed')">
+            <i class="fas fa-hashtag"></i> Sosial Media
         </button>
-        <button class="category-btn" data-category="money" onclick="filterCategory('money')">
-            <i class="fas fa-wallet"></i> Money
+        <button class="category-btn" data-category="game" onclick="filterCategory('game')">
+            <i class="fas fa-gamepad"></i> Game
         </button>
-        <button class="category-btn" data-category="utility" onclick="filterCategory('utility')">
-            <i class="fas fa-tools"></i> Utility
+        <button class="category-btn" data-category="lainnya" onclick="filterCategory('lainnya')">
+            <i class="fas fa-ellipsis-h"></i> Lainnya
         </button>
     </div>
 
@@ -116,10 +116,10 @@
         <div class="services-grid" id="servicesGrid"></div>
         <div class="empty-state" id="emptyState" style="display:none;">
             <i class="fas fa-search"></i>
-            <h3>Gak nemu yang kamu cari?</h3>
-            <p>Kasih tau kami produk atau layanan yang harusnya ada di Doo-Pedia.</p>
+            <h3>Tidak ada layanan di kategori ini</h3>
+            <p>Kasih tau kami layanan yang harusnya ada di Doo-Pedia.</p>
             <button class="btn btn-primary" onclick="openSuggestModal()">
-                <i class="fas fa-comment"></i> Kasih saran produk baru
+                <i class="fas fa-comment"></i> Kasih saran layanan baru
             </button>
         </div>
     </main>
@@ -127,16 +127,16 @@
     <!-- BOTTOM NAV -->
     <nav class="bottom-nav">
         <button class="nav-item active" onclick="navigateTo('home')">
-            <i class="fas fa-home"></i><span>Home</span>
+            <i class="fas fa-home"></i><span>Beranda</span>
         </button>
         <button class="nav-item" onclick="openDepositModal()">
             <i class="fas fa-credit-card"></i><span>Deposit</span>
         </button>
         <button class="nav-item" onclick="navigateTo('activity')">
-            <i class="fas fa-clock"></i><span>Activity</span>
+            <i class="fas fa-clock"></i><span>Aktivitas</span>
         </button>
         <button class="nav-item" onclick="openProfile()">
-            <i class="fas fa-user"></i><span>Profile</span>
+            <i class="fas fa-user"></i><span>Profil</span>
         </button>
     </nav>
 
@@ -144,7 +144,7 @@
     <div id="depositModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>💳 Deposit</h2>
+                <h2>💳 Deposit Saldo</h2>
                 <button onclick="closeDepositModal()" class="modal-close">&times;</button>
             </div>
             <div class="deposit-info">
@@ -155,8 +155,6 @@
                 <button class="deposit-option" onclick="depositAmount(25000)"><span class="amount">Rp 25.000</span><span class="bonus">+ Bonus 5%</span></button>
                 <button class="deposit-option" onclick="depositAmount(50000)"><span class="amount">Rp 50.000</span><span class="bonus">+ Bonus 10%</span></button>
                 <button class="deposit-option" onclick="depositAmount(100000)"><span class="amount">Rp 100.000</span><span class="bonus">+ Bonus 15%</span></button>
-                <button class="deposit-option" onclick="depositAmount(250000)"><span class="amount">Rp 250.000</span><span class="bonus">+ Bonus 20%</span></button>
-                <button class="deposit-option" onclick="depositAmount(500000)"><span class="amount">Rp 500.000</span><span class="bonus">+ Bonus 25%</span></button>
             </div>
             <div class="deposit-custom">
                 <input type="number" id="customDeposit" placeholder="Masukkan nominal lain">
@@ -174,30 +172,53 @@
         </div>
     </div>
 
+    <!-- ORDER MODAL -->
+    <div id="orderModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📱 Nomor Virtual</h2>
+                <button onclick="document.getElementById('orderModal').classList.remove('show')" class="modal-close">&times;</button>
+            </div>
+            <div style="text-align:center;padding:20px 0;">
+                <div style="font-size:48px;margin-bottom:10px;">📞</div>
+                <div style="font-size:28px;font-weight:700;color:#0088FF;" id="orderNumber">-</div>
+                <div style="color:#8899bb;margin:8px 0;">Status: <span id="orderStatus">Menunggu...</span></div>
+                <div style="margin:12px 0;padding:12px;background:rgba(0,136,255,0.05);border-radius:8px;">
+                    <div style="font-size:13px;color:#445566;">Kode OTP</div>
+                    <div style="font-size:32px;font-weight:700;letter-spacing:4px;color:#fff;" id="orderCode">-</div>
+                </div>
+                <input type="hidden" id="orderId">
+                <div style="display:flex;gap:10px;margin-top:16px;">
+                    <button onclick="finishOrder()" class="btn btn-primary" style="flex:1;">✅ Selesai</button>
+                    <button onclick="cancelOrder()" class="btn btn-secondary" style="flex:1;">❌ Batal</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- SUGGEST MODAL -->
     <div id="suggestModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>💡 Kasih Saran Produk Baru</h2>
+                <h2>💡 Kasih Saran Layanan Baru</h2>
                 <button onclick="closeSuggestModal()" class="modal-close">&times;</button>
             </div>
             <form id="suggestForm" onsubmit="submitSuggestion(event)">
                 <div class="form-group">
-                    <label>Nama Produk / Layanan</label>
-                    <input type="text" id="suggestName" placeholder="Contoh: Spotify, Netflix, dll" required>
+                    <label>Nama Layanan</label>
+                    <input type="text" id="suggestName" placeholder="Contoh: Netflix, Spotify, dll" required>
                 </div>
                 <div class="form-group">
                     <label>Kategori</label>
                     <select id="suggestCategory" required>
-                        <option value="games">Games</option>
-                        <option value="money">Money / Payment</option>
-                        <option value="utility">Utility / Sosial Media</option>
-                        <option value="other">Lainnya</option>
+                        <option value="sosmed">Sosial Media</option>
+                        <option value="game">Game</option>
+                        <option value="lainnya">Lainnya</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label>Deskripsi (opsional)</label>
-                    <textarea id="suggestDesc" rows="3" placeholder="Jelaskan produk ini digunakan untuk apa..."></textarea>
+                    <textarea id="suggestDesc" rows="3" placeholder="Jelaskan layanan ini digunakan untuk apa..."></textarea>
                 </div>
                 <div class="form-group">
                     <label>Email Kamu</label>
@@ -221,7 +242,7 @@
         <div class="exit-popup-content">
             <img src="/doo/doo.png" alt="Doo-Pedia">
             <h3>Terima Kasih</h3>
-            <p>Doo-Pedia — Solusi OTP Instan</p>
+            <p>Doo-Pedia — Solusi Nomor Virtual</p>
             <button onclick="closeExitPopup()">Kembali</button>
         </div>
     </div>
