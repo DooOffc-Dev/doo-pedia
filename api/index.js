@@ -19,54 +19,76 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ==========================================
-// DATABASE
+// DATABASE - PAKE MEMORY (VERCEL FIX)
 // ==========================================
-const DB_PATH = path.join(__dirname, '../database.json');
+let dbData = {
+    users: [],
+    sessions: [],
+    transactions: [],
+    suggestions: []
+};
 
-if (!fs.existsSync(DB_PATH)) {
-    fs.writeFileSync(DB_PATH, JSON.stringify({ 
-        users: [],
-        sessions: [],
-        transactions: [],
-        suggestions: []
-    }, null, 2));
+// Coba baca dari file kalo ada (local), kalo ga ada pake memory
+try {
+    const DB_PATH = path.join(__dirname, '../database.json');
+    if (fs.existsSync(DB_PATH)) {
+        const raw = fs.readFileSync(DB_PATH, 'utf8');
+        dbData = JSON.parse(raw);
+        console.log('✅ Database loaded from file');
+    }
+} catch (e) {
+    console.log('⚠️ Using in-memory database');
 }
 
 function readDB() {
-    return JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+    return dbData;
 }
 
 function writeDB(data) {
-    fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
+    dbData = data;
+    // Coba simpan ke file (local)
+    try {
+        const DB_PATH = path.join(__dirname, '../database.json');
+        fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
+    } catch (e) {
+        // Di Vercel ga bisa write file, skip
+    }
 }
 
 // ==========================================
 // EMAIL CONFIG
 // ==========================================
-const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.EMAIL_PORT) || 587,
-    secure: process.env.EMAIL_SECURE === 'true' || false,
-    auth: {
-        user: process.env.EMAIL_USER || 'csdoopedia@gmail.com',
-        pass: process.env.EMAIL_PASS
-    },
-    tls: { rejectUnauthorized: false },
-    pool: true,
-    maxConnections: 5,
-    maxMessages: 100
-});
+let transporter = null;
 
-transporter.verify((error) => {
-    if (error) console.log('❌ Email error:', error.message);
-    else console.log('✅ Email ready!');
-});
+try {
+    transporter = nodemailer.createTransport({
+        host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+        port: parseInt(process.env.EMAIL_PORT) || 587,
+        secure: process.env.EMAIL_SECURE === 'true' || false,
+        auth: {
+            user: process.env.EMAIL_USER || 'csdoopedia@gmail.com',
+            pass: process.env.EMAIL_PASS
+        },
+        tls: { rejectUnauthorized: false }
+    });
+
+    transporter.verify((error) => {
+        if (error) {
+            console.log('❌ Email error:', error.message);
+        } else {
+            console.log('✅ Email ready!');
+        }
+    });
+} catch (e) {
+    console.log('⚠️ Email not configured, using mock mode');
+    transporter = null;
+}
 
 // ==========================================
 // API CONFIG
 // ==========================================
 const API_BASE = process.env.API_BASE_URL || 'https://www.rumahotp.io/api';
-const API_KEY = process.env.API_KEY;
+const API_KEY = process.env.API_KEY || 'rk-dev-olSqHdTSr1ZtG7OV7S8SzBmVhXiIO3QZ';
 
 // ==========================================
 // HELPERS
@@ -80,9 +102,15 @@ function hashPassword(password) {
 }
 
 // ==========================================
-// SEND OTP EMAIL
+// SEND OTP EMAIL (DENGAN FALLBACK)
 // ==========================================
 async function sendOTPEmail(email, otp, name = 'User') {
+    // KALO EMAIL GA DI SET, TAMPILIN OTP DI CONSOLE AJA
+    if (!transporter || !process.env.EMAIL_PASS || process.env.EMAIL_PASS === 'xxxx') {
+        console.log(`📧 [MOCK] OTP untuk ${email}: ${otp}`);
+        return { success: true, mock: true };
+    }
+
     const htmlContent = `
     <!DOCTYPE html>
     <html>
@@ -160,15 +188,19 @@ async function sendOTPEmail(email, otp, name = 'User') {
     };
 
     await transporter.sendMail(mailOptions);
+    return { success: true };
 }
 
 // ==========================================
 // AUTH ROUTES
 // ==========================================
 
+// REGISTER
 app.post('/api/auth/register', async (req, res) => {
     try {
         const { email, name, password } = req.body;
+
+        console.log('📝 Register attempt:', { email, name });
 
         if (!email || !password) {
             return res.status(400).json({ success: false, error: 'Email dan password wajib diisi' });
@@ -201,16 +233,25 @@ app.post('/api/auth/register', async (req, res) => {
         });
         writeDB(db);
 
-        await sendOTPEmail(email, otp, name || email.split('@')[0]);
+        // Kirim email (dengan fallback)
+        const emailResult = await sendOTPEmail(email, otp, name || email.split('@')[0]);
 
-        res.json({ success: true, message: 'Kode OTP telah dikirim ke email Anda', email, expiresIn: '5 menit' });
+        res.json({ 
+            success: true, 
+            message: emailResult.mock ? 'TEST MODE: Cek console untuk OTP' : 'Kode OTP telah dikirim ke email Anda',
+            email: email,
+            expiresIn: '5 menit',
+            mock: emailResult.mock || false,
+            otp: emailResult.mock ? otp : undefined
+        });
 
     } catch (error) {
-        console.error('Register error:', error);
-        res.status(500).json({ success: false, error: 'Gagal mengirim OTP. Coba lagi.' });
+        console.error('❌ Register error:', error);
+        res.status(500).json({ success: false, error: 'Gagal mengirim OTP: ' + error.message });
     }
 });
 
+// RESEND OTP
 app.post('/api/auth/resend-otp', async (req, res) => {
     try {
         const { email, name, password } = req.body;
@@ -243,11 +284,12 @@ app.post('/api/auth/resend-otp', async (req, res) => {
         res.json({ success: true, message: 'OTP baru telah dikirim', expiresIn: '5 menit' });
 
     } catch (error) {
-        console.error('Resend OTP error:', error);
-        res.status(500).json({ success: false, error: 'Gagal mengirim ulang OTP' });
+        console.error('❌ Resend OTP error:', error);
+        res.status(500).json({ success: false, error: 'Gagal mengirim ulang OTP: ' + error.message });
     }
 });
 
+// VERIFY
 app.post('/api/auth/verify', async (req, res) => {
     try {
         const { email, otp, password, name } = req.body;
@@ -312,11 +354,12 @@ app.post('/api/auth/verify', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Verify error:', error);
-        res.status(500).json({ success: false, error: 'Verifikasi gagal. Coba lagi.' });
+        console.error('❌ Verify error:', error);
+        res.status(500).json({ success: false, error: 'Verifikasi gagal: ' + error.message });
     }
 });
 
+// LOGIN
 app.post('/api/auth/login', async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -354,11 +397,12 @@ app.post('/api/auth/login', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Login error:', error);
-        res.status(500).json({ success: false, error: 'Login gagal' });
+        console.error('❌ Login error:', error);
+        res.status(500).json({ success: false, error: 'Login gagal: ' + error.message });
     }
 });
 
+// LOGOUT
 app.post('/api/auth/logout', async (req, res) => {
     try {
         const token = req.headers.authorization?.replace('Bearer ', '');
@@ -374,6 +418,7 @@ app.post('/api/auth/logout', async (req, res) => {
     }
 });
 
+// GET USER
 app.get('/api/auth/me', async (req, res) => {
     try {
         const token = req.headers.authorization?.replace('Bearer ', '');
@@ -513,6 +558,11 @@ app.post('/api/contact', async (req, res) => {
             return res.status(400).json({ success: false, error: 'Semua field wajib diisi' });
         }
 
+        if (!transporter || !process.env.EMAIL_PASS || process.env.EMAIL_PASS === 'xxxx') {
+            console.log(`📧 [MOCK] Contact from ${name} (${email}): ${message}`);
+            return res.json({ success: true, message: 'Pesan terkirim! (TEST MODE)' });
+        }
+
         const htmlContent = `
         <!DOCTYPE html>
         <html><head><meta charset="UTF-8"><title>Pesan Kontak - DooPedia</title>
@@ -531,7 +581,7 @@ app.post('/api/contact', async (req, res) => {
 
         await transporter.sendMail({
             from: process.env.EMAIL_FROM || `"DooPedia Nokos" <${process.env.EMAIL_USER}>`,
-            to: 'csdoopedia@gmail.com',
+            to: process.env.SUPPORT_EMAIL || 'csdoopedia@gmail.com',
             subject: `📩 Pesan Kontak dari ${name}`,
             html: htmlContent,
             replyTo: email
@@ -548,6 +598,11 @@ app.post('/api/suggest', async (req, res) => {
         const { name, category, desc, email } = req.body;
         if (!name || !email) {
             return res.status(400).json({ success: false, error: 'Nama produk dan email wajib diisi' });
+        }
+
+        if (!transporter || !process.env.EMAIL_PASS || process.env.EMAIL_PASS === 'xxxx') {
+            console.log(`📧 [MOCK] Suggest from ${email}: ${name} (${category})`);
+            return res.json({ success: true, message: 'Saran berhasil dikirim! (TEST MODE)' });
         }
 
         const htmlContent = `
@@ -569,7 +624,7 @@ app.post('/api/suggest', async (req, res) => {
 
         await transporter.sendMail({
             from: process.env.EMAIL_FROM || `"DooPedia Nokos" <${process.env.EMAIL_USER}>`,
-            to: 'csdoopedia@gmail.com',
+            to: process.env.SUPPORT_EMAIL || 'csdoopedia@gmail.com',
             subject: `💡 Saran Produk Baru: ${name}`,
             html: htmlContent,
             replyTo: email
@@ -586,4 +641,41 @@ app.post('/api/suggest', async (req, res) => {
     }
 });
 
+// ==========================================
+// ROOT TEST
+// ==========================================
+app.get('/api/test', (req, res) => {
+    res.json({ 
+        success: true, 
+        message: '✅ API DooPedia is running!',
+        version: '1.0.0',
+        timestamp: new Date().toISOString()
+    });
+});
+
+// ==========================================
+// ERROR HANDLING
+// ==========================================
+app.use((err, req, res, next) => {
+    console.error('❌ Server Error:', err.message);
+    console.error('Stack:', err.stack);
+    res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+        message: err.message
+    });
+});
+
+app.use((req, res) => {
+    console.log('❌ 404:', req.method, req.path);
+    res.status(404).json({
+        success: false,
+        error: 'Endpoint not found',
+        path: req.path
+    });
+});
+
+// ==========================================
+// EXPORT
+// ==========================================
 module.exports = app;
