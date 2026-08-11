@@ -13,7 +13,7 @@
     <!-- Loading -->
     <div id="loading">
         <div class="loader">
-            <img src="/doo/dp.png" alt="Doo-Pedia">
+            <img src="/doo/logo.png" alt="Doo-Pedia">
             <div class="loader-bar"></div>
         </div>
     </div>
@@ -26,12 +26,10 @@
                 <span>Doo-Pedia</span>
             </div>
             <div class="header-actions">
-                <!-- JAM REAL TIME -->
                 <div class="header-clock" id="headerClock">
                     <i class="fas fa-clock"></i>
                     <span id="clockDisplay">00:00:00</span>
                 </div>
-                <!-- AUTH BUTTON PAKE DP -->
                 <button onclick="openAuthModal()" class="auth-btn" id="authBtn">
                     <img src="/doo/dp.png" alt="Profile" style="width:22px;height:22px;border-radius:50%;object-fit:cover;">
                 </button>
@@ -55,56 +53,29 @@
         </div>
     </header>
 
-    <!-- HERO SLIDER -->
+    <!-- HERO - TANPA TEKS, CUMA GAMBAR -->
     <section id="home" class="hero">
         <div class="hero-bg"></div>
         <div class="hero-slider">
             <div class="hero-slides">
-                <!-- HERO 1 -->
                 <div class="hero-slide active">
                     <div class="hero-content">
-                        <div class="hero-text">
-                            <h1>OTP <span>Instan</span></h1>
-                            <p>Verifikasi akun dalam hitungan detik</p>
-                            <div class="hero-buttons">
-                                <a href="#services" class="btn btn-primary">Mulai</a>
-                                <a href="#pricing" class="btn btn-secondary">Harga</a>
-                            </div>
-                        </div>
-                        <div class="hero-image">
-                            <img src="/doo/hero1.png" alt="OTP Instan">
+                        <div class="hero-image-full">
+                            <img src="/doo/hero1.png" alt="Doo-Pedia">
                         </div>
                     </div>
                 </div>
-                <!-- HERO 2 -->
                 <div class="hero-slide">
                     <div class="hero-content">
-                        <div class="hero-text">
-                            <h1>100+ <span>Layanan</span></h1>
-                            <p>Games • Money • Utility • Sosial Media</p>
-                            <div class="hero-buttons">
-                                <a href="#services" class="btn btn-primary">Lihat</a>
-                                <a href="#pricing" class="btn btn-secondary">Harga</a>
-                            </div>
-                        </div>
-                        <div class="hero-image">
-                            <img src="/doo/hero2.png" alt="Layanan Lengkap">
+                        <div class="hero-image-full">
+                            <img src="/doo/hero2.png" alt="Doo-Pedia">
                         </div>
                     </div>
                 </div>
-                <!-- HERO 3 -->
                 <div class="hero-slide">
                     <div class="hero-content">
-                        <div class="hero-text">
-                            <h1>Aman & <span>Cepat</span></h1>
-                            <p>Nomor virtual terjamin keamanannya</p>
-                            <div class="hero-buttons">
-                                <a href="#services" class="btn btn-primary">Mulai</a>
-                                <a href="#contact" class="btn btn-secondary">Hubungi</a>
-                            </div>
-                        </div>
-                        <div class="hero-image">
-                            <img src="/doo/hero3.png" alt="Aman & Cepat">
+                        <div class="hero-image-full">
+                            <img src="/doo/hero3.png" alt="Doo-Pedia">
                         </div>
                     </div>
                 </div>
@@ -117,18 +88,17 @@
                 <span class="dot" onclick="goToSlide(2)"></span>
             </div>
         </div>
-        <div class="hero-stats">
-            <div class="stat">
-                <span class="stat-number" data-count="50">0</span>
-                <span class="stat-label">Negara</span>
+        <!-- Server Status -->
+        <div class="server-status">
+            <div class="status-item">
+                <span class="status-dot online"></span>
+                <span>6/6 Online</span>
             </div>
-            <div class="stat">
-                <span class="stat-number" data-count="1000">0</span>
-                <span class="stat-label">Nomor</span>
-            </div>
-            <div class="stat">
-                <span class="stat-number" data-count="5000">0</span>
-                <span class="stat-label">User</span>
+            <div class="status-details">
+                <span>Main Page <span class="status-ms">35ms</span></span>
+                <span>CDN Static <span class="status-ms">51ms</span></span>
+                <span>CDN Assets <span class="status-ms">75ms</span></span>
+                <span>Schedule <span class="status-ms">27ms</span></span>
             </div>
         </div>
     </section>
@@ -205,7 +175,7 @@
             
             <form id="registerForm" class="auth-form" style="display:none;">
                 <div class="form-group">
-                    <label>Nama Lengkap</label>
+                    <label>Nama</label>
                     <input type="text" id="registerName" placeholder="Nama lengkap" required>
                 </div>
                 <div class="form-group">
@@ -327,12 +297,12 @@
     <!-- NOTIFICATION -->
     <div id="notificationContainer"></div>
 
-    <!-- EXIT POPUP -->
+    <!-- EXIT POPUP - PAKE dp.png (LOGO) -->
     <div id="exitPopup" class="exit-popup">
         <div class="exit-popup-content">
-            <img src="/doo/doo.png" alt="Doo-Pedia">
-            <h3>Terima Kasih Telah Mengunjungi</h3>
-            <p>Doo-Pedia - Solusi OTP Instan</p>
+            <img src="/doo/dp.png" alt="Doo-Pedia">
+            <h3>Terima Kasih</h3>
+            <p>Doo-Pedia — Solusi OTP Instan</p>
             <button onclick="closeExitPopup()">Kembali</button>
         </div>
     </div>
