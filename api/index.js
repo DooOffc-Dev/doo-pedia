@@ -18,7 +18,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ==========================================
-// DATABASE - PAKE MEMORY (VERCEL FIX)
+// DATABASE - MEMORY (VERCEL FIX)
 // ==========================================
 let dbData = {
     users: [],
@@ -26,7 +26,6 @@ let dbData = {
     orders: []
 };
 
-// Coba baca dari file kalo ada
 try {
     const DB_PATH = path.join(__dirname, '../database.json');
     if (fs.existsSync(DB_PATH)) {
@@ -38,18 +37,13 @@ try {
     console.log('⚠️ Using in-memory database');
 }
 
-function readDB() {
-    return dbData;
-}
-
+function readDB() { return dbData; }
 function writeDB(data) {
     dbData = data;
     try {
         const DB_PATH = path.join(__dirname, '../database.json');
         fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
-    } catch (e) {
-        // Di Vercel ga bisa write file, skip
-    }
+    } catch (e) {}
 }
 
 // ==========================================
@@ -74,45 +68,28 @@ function generateAPIKey() {
 // REGISTER
 app.post('/api/auth/register', async (req, res) => {
     try {
-        console.log('📝 Register attempt:', req.body);
-        
         const { username, email, password, confirmPassword } = req.body;
 
         if (!username || !email || !password || !confirmPassword) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Semua field wajib diisi' 
-            });
+            return res.status(400).json({ success: false, error: 'Semua field wajib diisi' });
         }
 
         if (password !== confirmPassword) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Password dan Confirm Password tidak sama' 
-            });
+            return res.status(400).json({ success: false, error: 'Password tidak sama' });
         }
 
         if (password.length < 6) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Password minimal 6 karakter' 
-            });
+            return res.status(400).json({ success: false, error: 'Password minimal 6 karakter' });
         }
 
         const db = readDB();
 
         if (db.users.some(u => u.email === email)) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Email sudah terdaftar' 
-            });
+            return res.status(400).json({ success: false, error: 'Email sudah terdaftar' });
         }
 
         if (db.users.some(u => u.username === username)) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Username sudah dipakai' 
-            });
+            return res.status(400).json({ success: false, error: 'Username sudah dipakai' });
         }
 
         const apiKey = generateAPIKey();
@@ -133,11 +110,9 @@ app.post('/api/auth/register', async (req, res) => {
         db.users.push(newUser);
         writeDB(db);
 
-        console.log('✅ User registered:', username);
-
         res.json({
             success: true,
-            message: 'Registrasi berhasil! Silakan login.',
+            message: 'Registrasi berhasil!',
             user: {
                 id: newUser.id,
                 username: newUser.username,
@@ -147,43 +122,29 @@ app.post('/api/auth/register', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('❌ Register error:', error);
-        res.status(500).json({ 
-            success: false, 
-            error: error.message || 'Internal server error' 
-        });
+        console.error('Register error:', error);
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 
 // LOGIN
 app.post('/api/auth/login', async (req, res) => {
     try {
-        console.log('📝 Login attempt:', req.body.email);
-        
         const { email, password } = req.body;
 
         if (!email || !password) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Email dan password wajib diisi' 
-            });
+            return res.status(400).json({ success: false, error: 'Email dan password wajib diisi' });
         }
 
         const db = readDB();
         const user = db.users.find(u => u.email === email);
 
         if (!user) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Email tidak terdaftar' 
-            });
+            return res.status(400).json({ success: false, error: 'Email tidak terdaftar' });
         }
 
         if (user.password !== hashPassword(password)) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Password salah' 
-            });
+            return res.status(400).json({ success: false, error: 'Password salah' });
         }
 
         const token = generateToken();
@@ -197,8 +158,6 @@ app.post('/api/auth/login', async (req, res) => {
         });
         writeDB(db);
 
-        console.log('✅ User logged in:', user.username);
-
         res.json({
             success: true,
             message: 'Login berhasil!',
@@ -211,16 +170,13 @@ app.post('/api/auth/login', async (req, res) => {
                 balance: user.balance || 0,
                 totalOrder: user.totalOrder || 0,
                 totalDeposit: user.totalDeposit || 0,
-                registeredAt: user.registeredAt || new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+                registeredAt: user.registeredAt
             }
         });
 
     } catch (error) {
-        console.error('❌ Login error:', error);
-        res.status(500).json({ 
-            success: false, 
-            error: error.message || 'Internal server error' 
-        });
+        console.error('Login error:', error);
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 
@@ -279,7 +235,7 @@ app.get('/api/auth/me', async (req, res) => {
                 balance: user.balance || 0,
                 totalOrder: user.totalOrder || 0,
                 totalDeposit: user.totalDeposit || 0,
-                registeredAt: user.registeredAt || new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+                registeredAt: user.registeredAt
             }
         });
 
@@ -323,7 +279,7 @@ app.post('/api/auth/change-apikey', async (req, res) => {
 });
 
 // ==========================================
-// RUANGOTP API CONFIG
+// RUANGOTP API
 // ==========================================
 const RUANGOTP_API_KEY = process.env.RUANGOTP_API_KEY || 'c0175829-7892-4fc8-9978-895099de7c76';
 const RUANGOTP_SERVER1 = 'https://api.ruangotp.net/api/v1';
@@ -353,9 +309,7 @@ async function ruangotpRequest(endpoint, method = 'GET', data = null, server = '
     }
 }
 
-// ==========================================
 // SERVER STATUS
-// ==========================================
 app.get('/api/server-status', async (req, res) => {
     const status = {
         server1: { status: 'offline' },
@@ -372,9 +326,7 @@ app.get('/api/server-status', async (req, res) => {
     res.json({ success: true, data: status });
 });
 
-// ==========================================
 // SERVICES
-// ==========================================
 app.get('/api/v1/services', async (req, res) => {
     try {
         const data = await ruangotpRequest('/services/list', 'GET', null, 'v1');
@@ -383,25 +335,12 @@ app.get('/api/v1/services', async (req, res) => {
         res.json({
             success: true,
             server: 'Server 1 (Fallback)',
-            data: {
-                services: [
-                    { id: 1, name: 'WhatsApp', country: 'Indonesia', price: 200 },
-                    { id: 2, name: 'Telegram', country: 'Indonesia', price: 500 },
-                    { id: 3, name: 'Instagram', country: 'Indonesia', price: 1000 },
-                    { id: 4, name: 'Gmail', country: 'US', price: 2000 },
-                    { id: 5, name: 'Twitter', country: 'US', price: 1500 },
-                    { id: 6, name: 'TikTok', country: 'Indonesia', price: 800 },
-                    { id: 7, name: 'Facebook', country: 'US', price: 1200 },
-                    { id: 8, name: 'Discord', country: 'US', price: 2500 }
-                ]
-            }
+            data: { services: [] }
         });
     }
 });
 
-// ==========================================
 // ORDER
-// ==========================================
 app.post('/api/v1/order', async (req, res) => {
     try {
         const { service_id, country = 'ID' } = req.body;
@@ -415,9 +354,7 @@ app.post('/api/v1/order', async (req, res) => {
     }
 });
 
-// ==========================================
 // CHECK OTP
-// ==========================================
 app.get('/api/v1/check/:order_id', async (req, res) => {
     try {
         const { order_id } = req.params;
@@ -428,9 +365,7 @@ app.get('/api/v1/check/:order_id', async (req, res) => {
     }
 });
 
-// ==========================================
 // CANCEL
-// ==========================================
 app.post('/api/v1/cancel/:order_id', async (req, res) => {
     try {
         const { order_id } = req.params;
@@ -441,9 +376,7 @@ app.post('/api/v1/cancel/:order_id', async (req, res) => {
     }
 });
 
-// ==========================================
 // TEST
-// ==========================================
 app.get('/api/test', (req, res) => {
     res.json({
         success: true,
@@ -458,18 +391,11 @@ app.get('/api/test', (req, res) => {
 // ==========================================
 app.use((err, req, res, next) => {
     console.error('❌ Server Error:', err.message);
-    res.status(500).json({ 
-        success: false, 
-        error: err.message || 'Internal server error' 
-    });
+    res.status(500).json({ success: false, error: err.message });
 });
 
 app.use((req, res) => {
-    res.status(404).json({ 
-        success: false, 
-        error: 'Endpoint not found',
-        path: req.path 
-    });
+    res.status(404).json({ success: false, error: 'Endpoint not found' });
 });
 
 module.exports = app;
