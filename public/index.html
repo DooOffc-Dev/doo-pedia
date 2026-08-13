@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>DooPedia | Nokos & OTP Services</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="icon" href="/doo/logo.png" type="image/png" />
+    <meta name="theme-color" content="#0066CC" />
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0a0e17; color: #fff; padding-bottom: 80px; }
+        
+        /* ===== NAVBAR ===== */
+        .lp-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 10px 0;
+            background: rgba(10,14,23,0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0,102,204,0.08);
+        }
+        .lp-nav__inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .lp-brand { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 800; color: #fff; text-decoration: none; }
+        .lp-brand img { width: 28px; height: 28px; border-radius: 6px; }
+        .lp-brand span { color: #0088FF; }
+        .lp-nav__cta { display: flex; align-items: center; gap: 8px; }
+        .lp-btn {
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+        .lp-btn--primary { background: linear-gradient(135deg, #0066CC, #0088FF); color: #fff; }
+        .lp-btn--primary:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,102,204,0.3); }
+        .lp-btn--ghost { background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.06); }
+        .lp-btn--ghost:hover { background: rgba(255,255,255,0.1); }
+        .lp-btn--danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; }
+        .lp-btn--danger:hover { transform: translateY(-1px); }
+        .lp-btn--sm { padding: 6px 14px; font-size: 12px; }
+        .lp-welcome {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #fff;
+            font-size: 13px;
+            background: rgba(0,102,204,0.06);
+            padding: 4px 12px 4px 16px;
+            border-radius: 16px;
+            border: 1px solid rgba(0,102,204,0.08);
+        }
+        .lp-welcome .username { color: #0088FF; font-weight: 700; }
+        .lp-welcome .logout-btn { background: none; border: none; color: #445566; cursor: pointer; font-size: 14px; padding: 2px 6px; border-radius: 4px; transition: 0.3s; }
+        .lp-welcome .logout-btn:hover { color: #ef4444; background: rgba(239,68,68,0.1); }
+        .lp-burger { display: none; background: none; border: none; color: #fff; font-size: 22px; cursor: pointer; }
+        
+        /* ===== MODAL AUTH ===== */
+        .modal-auth { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 9999; }
+        .modal-auth.show { display: flex; }
+        .modal-auth-content { background: #0f1a2e; border-radius: 16px; padding: 24px; max-width: 400px; width: 95%; border: 1px solid rgba(0,102,204,0.08); animation: fadeIn 0.3s ease; }
+        .modal-auth-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .modal-auth-header h2 { font-size: 18px; font-weight: 700; }
+        .modal-auth-close { background: rgba(255,255,255,0.03); border: none; color: #445566; width: 32px; height: 32px; border-radius: 50%; font-size: 18px; cursor: pointer; }
+        .modal-auth-close:hover { background: rgba(255,255,255,0.06); }
+        .modal-auth-tabs { display: flex; gap: 6px; margin-bottom: 16px; }
+        .modal-auth-tabs .tab { flex: 1; padding: 8px; border: none; border-radius: 8px; background: rgba(255,255,255,0.02); color: #445566; font-weight: 600; cursor: pointer; transition: 0.3s; font-family: 'Inter', sans-serif; font-size: 13px; }
+        .modal-auth-tabs .tab.active { background: rgba(0,102,204,0.12); color: #0088FF; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 12px; font-weight: 500; color: #445566; margin-bottom: 4px; }
+        .form-group input { width: 100%; padding: 10px 14px; background: #0a0e17; border: 1px solid rgba(0,102,204,0.06); border-radius: 8px; color: #fff; font-size: 14px; font-family: 'Inter', sans-serif; transition: 0.3s; }
+        .form-group input:focus { outline: none; border-color: rgba(0,102,204,0.2); }
+        .form-error { color: #ef4444; font-size: 12px; margin-top: 4px; display: none; }
+        .form-success { color: #22c55e; font-size: 12px; margin-top: 4px; display: none; }
+        .auth-form { display: none; }
+        .auth-form.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        
+        /* ===== MODAL SUPPORT ===== */
+        .modal-support { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 9999; }
+        .modal-support.show { display: flex; }
+        .modal-support-content { background: #0f1a2e; border-radius: 16px; padding: 24px; max-width: 400px; width: 95%; border: 1px solid rgba(0,102,204,0.08); animation: fadeIn 0.3s ease; }
+        .modal-support-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .modal-support-header h2 { font-size: 18px; font-weight: 700; }
+        .modal-support-close { background: rgba(255,255,255,0.03); border: none; color: #445566; width: 32px; height: 32px; border-radius: 50%; font-size: 18px; cursor: pointer; }
+        .support-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: rgba(255,255,255,0.02); border-radius: 10px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.03); transition: 0.3s; cursor: pointer; }
+        .support-item:hover { border-color: rgba(0,102,204,0.15); background: rgba(0,102,204,0.03); }
+        .support-item .icon { font-size: 22px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: rgba(0,102,204,0.06); border-radius: 8px; flex-shrink: 0; }
+        .support-item .info .title { font-weight: 600; color: #fff; font-size: 14px; }
+        .support-item .info .desc { font-size: 12px; color: #445566; }
+        .support-item .arrow { margin-left: auto; color: #445566; }
+        
+        /* ===== PAGES ===== */
+        .page { display: none; padding: 80px 16px 20px; max-width: 600px; margin: 0 auto; }
+        .page.active { display: block; }
+        
+        /* ===== HOME / SERVICES ===== */
+        .server-tabs { display: flex; gap: 10px; margin-bottom: 16px; }
+        .server-tabs .srv-tab { flex: 1; padding: 10px; border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; background: rgba(255,255,255,0.02); color: #445566; font-weight: 600; cursor: pointer; transition: 0.3s; font-family: 'Inter', sans-serif; font-size: 14px; text-align: center; }
+        .server-tabs .srv-tab.active { border-color: #0088FF; background: rgba(0,102,204,0.08); color: #0088FF; }
+        .server-tabs .srv-tab .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+        .server-tabs .srv-tab .dot.on { background: #22c55e; }
+        .server-tabs .srv-tab .dot.off { background: #ef4444; }
+        
+        .service-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .service-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .service-card:hover { border-color: rgba(0,102,204,0.15); transform: translateY(-2px); }
+        .service-card .icon { font-size: 28px; margin-bottom: 6px; }
+        .service-card .name { font-size: 13px; font-weight: 600; color: #fff; }
+        .service-card .country { font-size: 11px; color: #445566; }
+        .service-card .price { font-size: 13px; color: #0088FF; font-weight: 600; margin-top: 4px; }
+        .service-card .order-btn {
+            margin-top: 8px;
+            width: 100%;
+            padding: 6px;
+            font-size: 12px;
+            border: none;
+            border-radius: 6px;
+            background: linear-gradient(135deg, #0066CC, #0088FF);
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+        .service-card .order-btn:hover { transform: scale(1.02); }
+        
+        /* ===== PROFILE ===== */
+        .profile-header { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+        .profile-avatar { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #0066CC, #0088FF); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 700; color: #fff; flex-shrink: 0; }
+        .profile-name { font-size: 20px; font-weight: 700; }
+        .profile-email { font-size: 13px; color: #445566; }
+        .profile-badge { font-size: 11px; color: #0088FF; background: rgba(0,102,204,0.08); padding: 2px 10px; border-radius: 12px; display: inline-block; margin-top: 2px; }
+        .profile-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+        .profile-card .label { font-size: 11px; color: #445566; text-transform: uppercase; letter-spacing: 0.5px; }
+        .profile-card .value { font-size: 14px; font-weight: 600; color: #fff; word-break: break-all; }
+        .profile-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 10px 0; }
+        .profile-stat { background: rgba(255,255,255,0.02); border-radius: 8px; padding: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.03); }
+        .profile-stat .num { font-size: 18px; font-weight: 700; color: #0088FF; }
+        .profile-stat .lbl { font-size: 10px; color: #445566; }
+        .profile-section-title { font-size: 14px; font-weight: 600; color: #fff; margin: 14px 0 8px; }
+        
+        /* ===== DEPOSIT ===== */
+        .deposit-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .deposit-option { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); border-radius: 10px; padding: 14px; text-align: center; cursor: pointer; transition: 0.3s; font-family: 'Inter', sans-serif; }
+        .deposit-option:hover { border-color: rgba(0,102,204,0.15); background: rgba(0,102,204,0.03); }
+        .deposit-option .amount { font-size: 16px; font-weight: 700; color: #fff; }
+        .deposit-option .bonus { font-size: 11px; color: #22c55e; }
+        .deposit-custom { display: flex; gap: 10px; margin-top: 12px; }
+        .deposit-custom input { flex: 1; padding: 10px 14px; background: #0a0e17; border: 1px solid rgba(0,102,204,0.06); border-radius: 8px; color: #fff; font-size: 14px; font-family: 'Inter', sans-serif; }
+        .deposit-custom input:focus { outline: none; border-color: rgba(0,102,204,0.2); }
+        .deposit-custom button { padding: 10px 20px; background: linear-gradient(135deg, #0066CC, #0088FF); border: none; border-radius: 8px; color: #fff; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; }
+        .deposit-methods { display: flex; gap: 12px; justify-content: center; margin-top: 12px; font-size: 28px; color: #334455; }
+        
+        /* ===== ACTIVITY ===== */
+        .activity-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: rgba(255,255,255,0.02); border-radius: 10px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.03); }
+        .activity-item .act-icon { font-size: 24px; }
+        .activity-item .act-info .act-title { font-size: 14px; font-weight: 600; color: #fff; }
+        .activity-item .act-info .act-desc { font-size: 12px; color: #445566; }
+        .activity-item .act-status { margin-left: auto; font-size: 12px; font-weight: 600; }
+        .activity-item .act-status.success { color: #22c55e; }
+        .activity-item .act-status.pending { color: #f59e0b; }
+        .activity-item .act-status.failed { color: #ef4444; }
+        .empty-state { text-align: center; padding: 40px 20px; color: #445566; }
+        .empty-state i { font-size: 40px; display: block; margin-bottom: 10px; }
+        
+        /* ===== BOTTOM NAV ===== */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #0a0e17;
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(0,102,204,0.05);
+            display: flex;
+            padding: 6px 0 env(safe-area-inset-bottom);
+            z-index: 999;
+        }
+        .bottom-nav .nav-item {
+            flex: 1;
+            background: none;
+            border: none;
+            color: #445566;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1px;
+            padding: 4px 0;
+            font-size: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+        .bottom-nav .nav-item i { font-size: 20px; }
+        .bottom-nav .nav-item.active { color: #0088FF; }
+        .bottom-nav .nav-item:hover { color: #8899bb; }
+        
+        /* ===== EXIT POPUP ===== */
+        .exit-popup { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); display: none; justify-content: center; align-items: center; z-index: 99999; }
+        .exit-popup.show { display: flex; }
+        .exit-popup-content { text-align: center; padding: 32px; background: #0f1a2e; border-radius: 16px; border: 1px solid rgba(0,102,204,0.08); max-width: 340px; animation: fadeIn 0.4s ease; }
+        .exit-popup-content img { width: 72px; height: 72px; border-radius: 14px; margin-bottom: 12px; object-fit: cover; }
+        .exit-popup-content h3 { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+        .exit-popup-content p { color: #8899bb; margin-bottom: 16px; font-size: 14px; }
+        .exit-popup-content button { padding: 8px 32px; border: none; border-radius: 8px; background: linear-gradient(135deg, #0066CC, #0088FF); color: #fff; font-weight: 600; cursor: pointer; transition: 0.3s; font-size: 14px; }
+        .exit-popup-content button:hover { transform: scale(1.04); }
+        
+        /* ===== SUPPORT FAB ===== */
+        .support-fab {
+            position: fixed;
+            bottom: 76px;
+            right: 16px;
+            z-index: 99;
+            background: linear-gradient(135deg, #0066CC, #0088FF);
+            color: #fff;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0,102,204,0.3);
+            transition: 0.3s;
+            border: none;
+        }
+        .support-fab:hover { transform: scale(1.08); }
+        .support-fab i { color: #fff; }
+        
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .lp-burger { display: block; }
+            .service-grid { grid-template-columns: repeat(2, 1fr); }
+            .profile-stats { grid-template-columns: repeat(3, 1fr); }
+            .deposit-options { grid-template-columns: repeat(2, 1fr); }
+            .support-fab { width: 44px; height: 44px; font-size: 20px; bottom: 72px; right: 12px; }
+        }
+        @media (max-width: 480px) {
+            .service-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .profile-stats { grid-template-columns: repeat(3, 1fr); gap: 4px; }
+            .deposit-options { grid-template-columns: 1fr 1fr; gap: 6px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<nav class="lp-nav" id="lpNav">
+    <div class="lp-nav__inner">
+        <a href="/" class="lp-brand">
+            <img src="/doo/logo.png" alt="DooPedia" />
+            Doo<span>Pedia</span>
+        </a>
+        <div class="lp-nav__cta">
+            <div id="userInfo" style="display:none;">
+                <div class="lp-welcome">
+                    <i class="bi bi-person-circle" style="color:#0088FF;"></i>
+                    <span><span class="username" id="displayUsername">User</span></span>
+                    <button onclick="logoutUser()" class="logout-btn" title="Keluar Akun"><i class="bi bi-box-arrow-right"></i></button>
+                </div>
+            </div>
+            <div id="authButtons">
+                <button onclick="openAuthModal('login')" class="lp-btn lp-btn--ghost lp-btn--sm">Masuk</button>
+                <button onclick="openAuthModal('register')" class="lp-btn lp-btn--primary lp-btn--sm"><i class="bi bi-rocket"></i>Daftar</button>
+            </div>
+            <button class="lp-burger" id="lpBurger"><i class="bi bi-list"></i></button>
+        </div>
+    </div>
+</nav>
+
+<!-- ===== AUTH MODAL ===== -->
+<div class="modal-auth" id="authModal">
+    <div class="modal-auth-content">
+        <div class="modal-auth-header">
+            <h2 id="authModalTitle">✦ DooPedia</h2>
+            <button class="modal-auth-close" onclick="closeAuthModal()">&times;</button>
+        </div>
+        <div class="modal-auth-tabs">
+            <button class="tab active" data-tab="login" onclick="switchAuthTab('login')">Login</button>
+            <button class="tab" data-tab="register" onclick="switchAuthTab('register')">Daftar</button>
+        </div>
+        <form id="loginForm" class="auth-form active" onsubmit="loginUser(event)">
+            <div class="form-group"><label>Email</label><input type="email" id="loginEmail" placeholder="email@example.com" required /></div>
+            <div class="form-group"><label>Password</label><input type="password" id="loginPassword" placeholder="••••••••" required /></div>
+            <div id="loginError" class="form-error"></div>
+            <button type="submit" class="lp-btn lp-btn--primary" style="width:100%;justify-content:center;">Login</button>
+        </form>
+        <form id="registerForm" class="auth-form" onsubmit="registerUser(event)">
+            <div class="form-group"><label>Username</label><input type="text" id="registerUsername" placeholder="Nama pengguna" required /></div>
+            <div class="form-group"><label>Email</label><input type="email" id="registerEmail" placeholder="email@example.com" required /></div>
+            <div class="form-group"><label>Password</label><input type="password" id="registerPassword" placeholder="Minimal 6 karakter" required /></div>
+            <div class="form-group"><label>Confirm Password</label><input type="password" id="registerConfirmPassword" placeholder="Ulangi password" required /></div>
+            <div id="registerError" class="form-error"></div>
+            <div id="registerSuccess" class="form-success"></div>
+            <button type="submit" class="lp-btn lp-btn--primary" style="width:100%;justify-content:center;"><i class="bi bi-rocket"></i>Daftar</button>
+        </form>
+    </div>
+</div>
+
+<!-- ===== SUPPORT MODAL ===== -->
+<div class="modal-support" id="supportModal">
+    <div class="modal-support-content">
+        <div class="modal-support-header">
+            <h2><i class="bi bi-headset" style="color:#0088FF;"></i> Pusat Bantuan</h2>
+            <button class="modal-support-close" onclick="closeSupportModal()">&times;</button>
+        </div>
+        <div class="support-item" onclick="window.open('https://t.me/DooPediaNokzz_Bot', '_blank')">
+            <div class="icon"><i class="bi bi-robot" style="color:#0088FF;font-size:20px;"></i></div>
+            <div class="info"><div class="title">Saluran Telegram</div><div class="desc">@DooPediaNokzz_Bot</div></div>
+            <div class="arrow"><i class="bi bi-chevron-right"></i></div>
+        </div>
+        <div class="support-item" onclick="window.open('https://t.me/Cs-skydoopedia', '_blank')">
+            <div class="icon"><i class="bi bi-person-chat" style="color:#22c55e;font-size:20px;"></i></div>
+            <div class="info"><div class="title">Hubungi CS</div><div class="desc">@Cs-skydoopedia</div></div>
+            <div class="arrow"><i class="bi bi-chevron-right"></i></div>
+        </div>
+        <div class="support-item" onclick="location.href='mailto:doopediaid@gmail.com'">
+            <div class="icon"><i class="bi bi-envelope" style="color:#f59e0b;font-size:20px;"></i></div>
+            <div class="info"><div class="title">Email Support</div><div class="desc">doopediaid@gmail.com</div></div>
+            <div class="arrow"><i class="bi bi-chevron-right"></i></div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- PAGE: HOME (Layanan) -->
+<!-- ========================================== -->
+<div class="page active" id="pageHome">
+    <div class="server-tabs">
+        <button class="srv-tab active" data-server="1" onclick="switchServer(1)">
+            <span class="dot on" id="s1dot"></span> Server 1
+        </button>
+        <button class="srv-tab" data-server="2" onclick="switchServer(2)">
+            <span class="dot on" id="s2dot"></span> Server 2
+        </button>
+    </div>
+    <div id="servicesContainer">
+        <div style="text-align:center;padding:40px 0;color:#445566;">
+            <i class="bi bi-arrow-repeat fa-spin" style="font-size:32px;display:block;margin-bottom:12px;color:#0088FF;"></i>
+            <p>Memuat layanan...</p>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- PAGE: DEPOSIT -->
+<!-- ========================================== -->
+<div class="page" id="pageDeposit">
+    <h2 style="font-size:20px;font-weight:700;margin-bottom:16px;">💳 Deposit Saldo</h2>
+    <div class="profile-card" style="margin-bottom:16px;">
+        <div class="label">Saldo Saat Ini</div>
+        <div style="font-size:24px;font-weight:700;color:#0088FF;" id="depositBalance">Rp 0</div>
+    </div>
+    <div class="deposit-options">
+        <button class="deposit-option" onclick="depositAmount(10000)"><span class="amount">Rp 10.000</span><span class="bonus">+ Bonus 0%</span></button>
+        <button class="deposit-option" onclick="depositAmount(25000)"><span class="amount">Rp 25.000</span><span class="bonus">+ Bonus 5%</span></button>
+        <button class="deposit-option" onclick="depositAmount(50000)"><span class="amount">Rp 50.000</span><span class="bonus">+ Bonus 10%</span></button>
+        <button class="deposit-option" onclick="depositAmount(100000)"><span class="amount">Rp 100.000</span><span class="bonus">+ Bonus 15%</span></button>
+    </div>
+    <div class="deposit-custom">
+        <input type="number" id="customDeposit" placeholder="Masukkan nominal lain" />
+        <button onclick="depositCustom()">Deposit</button>
+    </div>
+    <div class="deposit-methods">
+        <i class="fas fa-university"></i>
+        <i class="fas fa-mobile-alt"></i>
+        <i class="fab fa-cc-visa"></i>
+        <i class="fab fa-cc-mastercard"></i>
+    </div>
+    <div style="margin-top:12px;font-size:12px;color:#445566;text-align:center;">
+        Metode pembayaran akan segera tersedia
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- PAGE: ACTIVITY -->
+<!-- ========================================== -->
+<div class="page" id="pageActivity">
+    <h2 style="font-size:20px;font-weight:700;margin-bottom:16px;">📋 Riwayat Aktivitas</h2>
+    <div id="activityContainer">
+        <div class="empty-state">
+            <i class="bi bi-clock-history"></i>
+            <div>Belum ada aktivitas</div>
+            <div style="font-size:12px;color:#445566;margin-top:4px;">Mulai order sekarang!</div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- PAGE: PROFILE -->
+<!-- ========================================== -->
+<div class="page" id="pageProfile">
+    <div class="profile-header">
+        <div class="profile-avatar" id="profileAvatar">U</div>
+        <div>
+            <div class="profile-name" id="profileName">Username</div>
+            <div class="profile-email" id="profileEmail">email@example.com</div>
+            <span class="profile-badge" id="profileBadge">ID: -</span>
+        </div>
+    </div>
+    
+    <div class="profile-card">
+        <div class="label">API Key</div>
+        <div class="value" id="apiKeyDisplay">-</div>
+        <button onclick="changeAPIKey()" style="margin-top:8px;background:rgba(245,158,11,0.1);color:#f59e0b;border:1px solid rgba(245,158,11,0.15);padding:4px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;">Change Apikey</button>
+        <div style="margin-top:4px;font-size:11px;color:#445566;">Terdaftar: <span id="profileRegistered">-</span></div>
+    </div>
+    
+    <div class="profile-stats">
+        <div class="profile-stat"><div class="num" id="profileBalance">Rp 0</div><div class="lbl">Sisa Saldo</div></div>
+        <div class="profile-stat"><div class="num" id="profileTotalOrder">0x</div><div class="lbl">Total Order</div></div>
+        <div class="profile-stat"><div class="num" id="profileDeposit">0x</div><div class="lbl">Deposit</div></div>
+    </div>
+    
+    <div class="profile-section-title">Pusat Bantuan</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+        <button onclick="window.open('https://t.me/DooPediaNokzz_Bot', '_blank')" class="lp-btn lp-btn--ghost lp-btn--sm"><i class="bi bi-send"></i> Saluran Telegram</button>
+        <button onclick="window.open('https://t.me/Cs-skydoopedia', '_blank')" class="lp-btn lp-btn--ghost lp-btn--sm"><i class="bi bi-chat"></i> Hubungi CS</button>
+        <button onclick="location.href='mailto:doopediaid@gmail.com'" class="lp-btn lp-btn--ghost lp-btn--sm"><i class="bi bi-envelope"></i> Email</button>
+    </div>
+    
+    <button onclick="logoutUser()" class="lp-btn lp-btn--danger" style="width:100%;justify-content:center;"><i class="bi bi-box-arrow-right"></i> Keluar Akun</button>
+</div>
+
+<!-- ===== SUPPORT FAB ===== -->
+<button class="support-fab" onclick="openSupportModal()" title="Pusat Bantuan">
+    <i class="bi bi-headset"></i>
+</button>
+
+<!-- ===== BOTTOM NAV ===== -->
+<nav class="bottom-nav">
+    <button class="nav-item active" onclick="navigateTo('home')">
+        <i class="bi bi-house-fill"></i><span>Home</span>
+    </button>
+    <button class="nav-item" onclick="navigateTo('deposit')">
+        <i class="bi bi-credit-card"></i><span>Deposit</span>
+    </button>
+    <button class="nav-item" onclick="navigateTo('activity')">
+        <i class="bi bi-clock"></i><span>Activity</span>
+    </button>
+    <button class="nav-item" onclick="navigateTo('profile')">
+        <i class="bi bi-person-fill"></i><span>Profile</span>
+    </button>
+</nav>
+
+<!-- ===== EXIT POPUP ===== -->
+<div id="exitPopup" class="exit-popup">
+    <div class="exit-popup-content">
+        <img src="/doo/dp.png" alt="DooPedia">
+        <h3>Terima Kasih</h3>
+        <p>DooPedia — Solusi OTP Instan</p>
+        <button onclick="closeExitPopup()">Kembali</button>
+    </div>
+</div>
+
+<!-- ===== SCRIPTS ===== -->
+<script>
+// ==========================================
+// STATE
+// ==========================================
+let currentUser = null;
+let authToken = localStorage.getItem('doopedia_token');
+let currentPage = 'home';
+let currentServer = 1;
+let servicesData = [];
+
+// ==========================================
+// AUTH FUNCTIONS
+// ==========================================
+async function registerUser(event) {
+    event.preventDefault();
+    const username = document.getElementById('registerUsername').value.trim();
+    const email = document.getElementById('registerEmail').value.trim();
+    const password = document.getElementById('registerPassword').value;
+    const confirmPassword = document.getElementById('registerConfirmPassword').value;
+    
+    const errorEl = document.getElementById('registerError');
+    const successEl = document.getElementById('registerSuccess');
+    errorEl.style.display = 'none';
+    successEl.style.display = 'none';
+    
+    if (password !== confirmPassword) {
+        errorEl.textContent = 'Password tidak sama!';
+        errorEl.style.display = 'block';
+        return;
+    }
+    if (password.length < 6) {
+        errorEl.textContent = 'Password minimal 6 karakter!';
+        errorEl.style.display = 'block';
+        return;
+    }
+    
+    try {
+        const res = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, email, password, confirmPassword })
+        });
+        const data = await res.json();
+        if (data.success) {
+            successEl.textContent = '✅ ' + data.message;
+            successEl.style.display = 'block';
+            document.getElementById('registerForm').reset();
+            setTimeout(() => {
+                switchAuthTab('login');
+                document.getElementById('loginEmail').value = email;
+            }, 1500);
+        } else {
+            errorEl.textContent = '❌ ' + data.error;
+            errorEl.style.display = 'block';
+        }
+    } catch (error) {
+        errorEl.textContent = '❌ Error: ' + error.message;
+        errorEl.style.display = 'block';
+    }
+}
+
+async function loginUser(event) {
+    event.preventDefault();
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    
+    const errorEl = document.getElementById('loginError');
+    errorEl.style.display = 'none';
+    
+    try {
+        const res = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (data.success) {
+            authToken = data.token;
+            localStorage.setItem('doopedia_token', authToken);
+            currentUser = data.user;
+            closeAuthModal();
+            updateUI();
+            showNotification('✅ Selamat datang, ' + currentUser.username + '!');
+            navigateTo('home');
+            loadServices();
+        } else {
+            errorEl.textContent = '❌ ' + data.error;
+            errorEl.style.display = 'block';
+        }
+    } catch (error) {
+        errorEl.textContent = '❌ Error: ' + error.message;
+        errorEl.style.display = 'block';
+    }
+}
+
+async function logoutUser() {
+    if (authToken) {
+        try {
+            await fetch('/api/auth/logout', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+        } catch (e) {}
+    }
+    authToken = null;
+    localStorage.removeItem('doopedia_token');
+    currentUser = null;
+    updateUI();
+    showNotification('👋 Logout berhasil!');
+    navigateTo('home');
+    document.getElementById('servicesContainer').innerHTML = `
+        <div style="text-align:center;padding:40px 0;color:#445566;">
+            <i class="bi bi-lock" style="font-size:32px;display:block;margin-bottom:12px;color:#0088FF;"></i>
+            <p>Login untuk melihat layanan</p>
+            <button onclick="openAuthModal('login')" class="lp-btn lp-btn--primary" style="margin-top:10px;">Login</button>
+        </div>
+    `;
+}
+
+async function changeAPIKey() {
+    if (!authToken) return;
+    try {
+        const res = await fetch('/api/auth/change-apikey', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+            currentUser.apiKey = data.apiKey;
+            updateUI();
+            showNotification('✅ API Key berhasil diubah!');
+        } else {
+            showNotification('❌ Gagal mengubah API Key');
+        }
+    } catch (e) {
+        showNotification('❌ Error: ' + e.message);
+    }
+}
+
+// ==========================================
+// SESSION CHECK
+// ==========================================
+async function checkSession() {
+    if (!authToken) {
+        updateUI();
+        document.getElementById('servicesContainer').innerHTML = `
+            <div style="text-align:center;padding:40px 0;color:#445566;">
+                <i class="bi bi-lock" style="font-size:32px;display:block;margin-bottom:12px;color:#0088FF;"></i>
+                <p>Login untuk melihat layanan</p>
+                <button onclick="openAuthModal('login')" class="lp-btn lp-btn--primary" style="margin-top:10px;">Login</button>
+            </div>
+        `;
+        return;
+    }
+    try {
+        const res = await fetch('/api/auth/me', {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+            currentUser = data.user;
+            updateUI();
+            if (currentPage === 'profile') renderProfile();
+            loadServices();
+            checkServerStatus();
+        } else {
+            logoutUser();
+        }
+    } catch (e) {
+        logoutUser();
+    }
+}
+
+// ==========================================
+// UPDATE UI
+// ==========================================
+function updateUI() {
+    const userInfo = document.getElementById('userInfo');
+    const authButtons = document.getElementById('authButtons');
+    const displayUsername = document.getElementById('displayUsername');
+    
+    if (currentUser) {
+        userInfo.style.display = 'block';
+        authButtons.style.display = 'none';
+        displayUsername.textContent = currentUser.username;
+        renderProfile();
+    } else {
+        userInfo.style.display = 'none';
+        authButtons.style.display = 'flex';
+    }
+}
+
+// ==========================================
+// RENDER PROFILE
+// ==========================================
+function renderProfile() {
+    if (!currentUser) return;
+    document.getElementById('profileAvatar').textContent = currentUser.username.charAt(0).toUpperCase();
+    document.getElementById('profileName').textContent = currentUser.username;
+    document.getElementById('profileEmail').textContent = currentUser.email;
+    document.getElementById('profileBadge').textContent = 'ID: ' + (currentUser.apiKey || '-');
+    document.getElementById('apiKeyDisplay').textContent = currentUser.apiKey || '-';
+    document.getElementById('profileRegistered').textContent = currentUser.registeredAt || '-';
+    document.getElementById('profileBalance').textContent = 'Rp ' + (currentUser.balance || 0);
+    document.getElementById('profileTotalOrder').textContent = (currentUser.totalOrder || 0) + 'x';
+    document.getElementById('profileDeposit').textContent = (currentUser.totalDeposit || 0) + 'x';
+    document.getElementById('depositBalance').textContent = 'Rp ' + (currentUser.balance || 0);
+}
+
+// ==========================================
+// LOAD SERVICES
+// ==========================================
+async function loadServices() {
+    if (!authToken || !currentUser) return;
+    
+    const container = document.getElementById('servicesContainer');
+    container.innerHTML = `
+        <div style="text-align:center;padding:40px 0;color:#445566;">
+            <i class="bi bi-arrow-repeat fa-spin" style="font-size:32px;display:block;margin-bottom:12px;color:#0088FF;"></i>
+            <p>Memuat layanan...</p>
+        </div>
+    `;
+    
+    try {
+        const res = await fetch(`/api/v${currentServer}/services`);
+        const data = await res.json();
+        if (data.success) {
+            servicesData = data.data?.services || data.data || [];
+            renderServices();
+        } else {
+            container.innerHTML = `<div style="text-align:center;padding:20px;color:#ef4444;">Gagal memuat layanan</div>`;
+        }
+    } catch (e) {
+        container.innerHTML = `<div style="text-align:center;padding:20px;color:#ef4444;">Error: ${e.message}</div>`;
+    }
+}
+
+function renderServices() {
+    const container = document.getElementById('servicesContainer');
+    if (!servicesData || servicesData.length === 0) {
+        container.innerHTML = `
+            <div style="text-align:center;padding:20px;color:#445566;">
+                <i class="bi bi-inbox" style="font-size:32px;display:block;margin-bottom:8px;"></i>
+                <p>Tidak ada layanan tersedia</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = `
+        <div class="service-grid">
+            ${servicesData.map(s => `
+                <div class="service-card" onclick="orderService('${s.id}')">
+                    <div class="icon">${s.icon || '📱'}</div>
+                    <div class="name">${s.name || s.service_name || 'Unknown'}</div>
+                    <div class="country">${s.country || 'Global'}</div>
+                    <div class="price">Rp ${(s.price || 0).toLocaleString()}</div>
+                    <button class="order-btn" onclick="event.stopPropagation();orderService('${s.id}')">Order</button>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+// ==========================================
+// ORDER SERVICE
+// ==========================================
+async function orderService(serviceId) {
+    if (!authToken || !currentUser) {
+        openAuthModal('login');
+        return;
+    }
+    showNotification('⏳ Memproses order...');
+    try {
+        const res = await fetch(`/api/v${currentServer}/order`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ service_id: serviceId, country: 'ID' })
+        });
+        const data = await res.json();
+        if (data.success) {
+            showNotification(`✅ Order berhasil! Nomor: ${data.data?.phone || data.phone || '-'}`);
+        } else {
+            showNotification(`❌ ${data.error || 'Order gagal'}`);
+        }
+    } catch (e) {
+        showNotification(`❌ Error: ${e.message}`);
+    }
+}
+
+// ==========================================
+// SERVER STATUS
+// ==========================================
+async function checkServerStatus() {
+    try {
+        const res = await fetch('/api/server-status');
+        const data = await res.json();
+        if (data.success) {
+            const s1 = data.data.server1.status === 'online';
+            const s2 = data.data.server2.status === 'online';
+            document.getElementById('s1dot').className = s1 ? 'dot on' : 'dot off';
+            document.getElementById('s2dot').className = s2 ? 'dot on' : 'dot off';
+        }
+    } catch (e) {}
+}
+
+function switchServer(server) {
+    currentServer = server;
+    document.querySelectorAll('.srv-tab').forEach(el => el.classList.remove('active'));
+    document.querySelector(`.srv-tab[data-server="${server}"]`).classList.add('active');
+    loadServices();
+}
+
+// ==========================================
+// DEPOSIT
+// ==========================================
+function depositAmount(amount) {
+    showNotification(`💳 Deposit Rp ${amount.toLocaleString()} akan segera tersedia`);
+}
+
+function depositCustom() {
+    const input = document.getElementById('customDeposit');
+    const amount = parseInt(input.value);
+    if (!amount || amount < 1000) {
+        showNotification('⚠️ Minimal deposit Rp 1.000');
+        return;
+    }
+    depositAmount(amount);
+}
+
+// ==========================================
+// NAVIGATION
+// ==========================================
+function navigateTo(page) {
+    currentPage = page;
+    document.querySelectorAll('.bottom-nav .nav-item').forEach(el => el.classList.remove('active'));
+    document.querySelector(`.bottom-nav .nav-item[onclick*="${page}"]`)?.classList.add('active');
+    document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+    document.getElementById(`page${page.charAt(0).toUpperCase() + page.slice(1)}`).classList.add('active');
+    
+    if (page === 'profile' && currentUser) {
+        renderProfile();
+    }
+}
+
+// ==========================================
+// AUTH MODAL
+// ==========================================
+function openAuthModal(tab = 'login') {
+    document.getElementById('authModal').classList.add('show');
+    switchAuthTab(tab);
+}
+
+function closeAuthModal() {
+    document.getElementById('authModal').classList.remove('show');
+}
+
+function switchAuthTab(tab) {
+    document.querySelectorAll('.modal-auth-tabs .tab').forEach(el => el.classList.remove('active'));
+    document.querySelector(`.modal-auth-tabs .tab[data-tab="${tab}"]`).classList.add('active');
+    document.querySelectorAll('.auth-form').forEach(el => el.classList.remove('active'));
+    document.getElementById(tab + 'Form').classList.add('active');
+    document.getElementById('authModalTitle').textContent = tab === 'login' ? '✦ Login' : '✦ Daftar';
+}
+
+// ==========================================
+// SUPPORT MODAL
+// ==========================================
+function openSupportModal() {
+    document.getElementById('supportModal').classList.add('show');
+}
+
+function closeSupportModal() {
+    document.getElementById('supportModal').classList.remove('show');
+}
+
+// ==========================================
+// NOTIFICATION
+// ==========================================
+function showNotification(message) {
+    const notif = document.createElement('div');
+    notif.style.cssText = `
+        position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+        background: #0f1a2e; border: 1px solid rgba(0,102,204,0.1); 
+        padding: 12px 20px; border-radius: 10px; color: #fff; 
+        z-index: 99999; max-width: 360px; font-size: 13px;
+        animation: fadeIn 0.3s ease; box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        text-align: center;
+    `;
+    notif.innerHTML = message;
+    document.body.appendChild(notif);
+    setTimeout(() => {
+        notif.style.opacity = '0';
+        notif.style.transition = '0.3s';
+        setTimeout(() => notif.remove(), 300);
+    }, 3500);
+}
+
+// ==========================================
+// EXIT POPUP
+// ==========================================
+let exitTriggered = false;
+document.addEventListener('mouseleave', function(e) {
+    if (e.clientY < 0 && !exitTriggered && !document.getElementById('authModal').classList.contains('show')) {
+        exitTriggered = true;
+        document.getElementById('exitPopup').classList.add('show');
+    }
+});
+function closeExitPopup() {
+    document.getElementById('exitPopup').classList.remove('show');
+}
+
+// ==========================================
+// CLICK OUTSIDE MODAL
+// ==========================================
+document.getElementById('authModal').addEventListener('click', function(e) {
+    if (e.target === this) closeAuthModal();
+});
+document.getElementById('supportModal').addEventListener('click', function(e) {
+    if (e.target === this) closeSupportModal();
+});
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeAuthModal();
+        closeSupportModal();
+        closeExitPopup();
+    }
+});
+
+// ==========================================
+// BURGER
+// ==========================================
+document.getElementById('lpBurger').addEventListener('click', function() {
+    showNotification('📱 DooPedia - Home, Deposit, Activity, Profile');
+});
+
+// ==========================================
+// INIT
+// ==========================================
+checkSession();
+setInterval(checkServerStatus, 30000);
+</script>
+</body>
+</html>
