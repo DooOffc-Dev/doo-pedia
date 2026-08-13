@@ -18,30 +18,38 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ==========================================
-// DATABASE
+// DATABASE - PAKE MEMORY (VERCEL FIX)
 // ==========================================
-const DB_PATH = path.join(__dirname, '../database.json');
+let dbData = {
+    users: [],
+    sessions: [],
+    orders: []
+};
 
-if (!fs.existsSync(DB_PATH)) {
-    fs.writeFileSync(DB_PATH, JSON.stringify({ 
-        users: [],
-        sessions: [],
-        orders: []
-    }, null, 2));
+// Coba baca dari file kalo ada
+try {
+    const DB_PATH = path.join(__dirname, '../database.json');
+    if (fs.existsSync(DB_PATH)) {
+        const raw = fs.readFileSync(DB_PATH, 'utf8');
+        dbData = JSON.parse(raw);
+        console.log('✅ Database loaded from file');
+    }
+} catch (e) {
+    console.log('⚠️ Using in-memory database');
 }
 
 function readDB() {
-    try {
-        return JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
-    } catch (e) {
-        return { users: [], sessions: [], orders: [] };
-    }
+    return dbData;
 }
 
 function writeDB(data) {
+    dbData = data;
     try {
+        const DB_PATH = path.join(__dirname, '../database.json');
         fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
-    } catch (e) {}
+    } catch (e) {
+        // Di Vercel ga bisa write file, skip
+    }
 }
 
 // ==========================================
@@ -66,28 +74,45 @@ function generateAPIKey() {
 // REGISTER
 app.post('/api/auth/register', async (req, res) => {
     try {
+        console.log('📝 Register attempt:', req.body);
+        
         const { username, email, password, confirmPassword } = req.body;
 
         if (!username || !email || !password || !confirmPassword) {
-            return res.status(400).json({ success: false, error: 'Semua field wajib diisi' });
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Semua field wajib diisi' 
+            });
         }
 
         if (password !== confirmPassword) {
-            return res.status(400).json({ success: false, error: 'Password tidak sama' });
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Password dan Confirm Password tidak sama' 
+            });
         }
 
         if (password.length < 6) {
-            return res.status(400).json({ success: false, error: 'Password minimal 6 karakter' });
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Password minimal 6 karakter' 
+            });
         }
 
         const db = readDB();
 
         if (db.users.some(u => u.email === email)) {
-            return res.status(400).json({ success: false, error: 'Email sudah terdaftar' });
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Email sudah terdaftar' 
+            });
         }
 
         if (db.users.some(u => u.username === username)) {
-            return res.status(400).json({ success: false, error: 'Username sudah dipakai' });
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Username sudah dipakai' 
+            });
         }
 
         const apiKey = generateAPIKey();
@@ -108,9 +133,11 @@ app.post('/api/auth/register', async (req, res) => {
         db.users.push(newUser);
         writeDB(db);
 
+        console.log('✅ User registered:', username);
+
         res.json({
             success: true,
-            message: 'Registrasi berhasil!',
+            message: 'Registrasi berhasil! Silakan login.',
             user: {
                 id: newUser.id,
                 username: newUser.username,
@@ -120,29 +147,43 @@ app.post('/api/auth/register', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Register error:', error);
-        res.status(500).json({ success: false, error: error.message });
+        console.error('❌ Register error:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: error.message || 'Internal server error' 
+        });
     }
 });
 
 // LOGIN
 app.post('/api/auth/login', async (req, res) => {
     try {
+        console.log('📝 Login attempt:', req.body.email);
+        
         const { email, password } = req.body;
 
         if (!email || !password) {
-            return res.status(400).json({ success: false, error: 'Email dan password wajib diisi' });
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Email dan password wajib diisi' 
+            });
         }
 
         const db = readDB();
         const user = db.users.find(u => u.email === email);
 
         if (!user) {
-            return res.status(400).json({ success: false, error: 'Email tidak terdaftar' });
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Email tidak terdaftar' 
+            });
         }
 
         if (user.password !== hashPassword(password)) {
-            return res.status(400).json({ success: false, error: 'Password salah' });
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Password salah' 
+            });
         }
 
         const token = generateToken();
@@ -155,6 +196,8 @@ app.post('/api/auth/login', async (req, res) => {
             expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000
         });
         writeDB(db);
+
+        console.log('✅ User logged in:', user.username);
 
         res.json({
             success: true,
@@ -173,8 +216,11 @@ app.post('/api/auth/login', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Login error:', error);
-        res.status(500).json({ success: false, error: error.message });
+        console.error('❌ Login error:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: error.message || 'Internal server error' 
+        });
     }
 });
 
@@ -283,14 +329,10 @@ const RUANGOTP_API_KEY = process.env.RUANGOTP_API_KEY || 'c0175829-7892-4fc8-997
 const RUANGOTP_SERVER1 = 'https://api.ruangotp.net/api/v1';
 const RUANGOTP_SERVER2 = 'https://api.ruangotp.net/api/v2';
 
-// ==========================================
-// RUANGOTP PROXY HELPER
-// ==========================================
 async function ruangotpRequest(endpoint, method = 'GET', data = null, server = 'v1') {
     try {
         const baseUrl = server === 'v2' ? RUANGOTP_SERVER2 : RUANGOTP_SERVER1;
         const url = `${baseUrl}${endpoint}`;
-        console.log(`🔄 RuangOTP [${server.toUpperCase()}]: ${method} ${url}`);
         const config = {
             method: method,
             url: url,
@@ -306,7 +348,7 @@ async function ruangotpRequest(endpoint, method = 'GET', data = null, server = '
         const response = await axios(config);
         return response.data;
     } catch (error) {
-        console.error(`❌ RuangOTP [${server.toUpperCase()}] Error:`, error.response?.data || error.message);
+        console.error('❌ RuangOTP Error:', error.response?.data || error.message);
         throw error;
     }
 }
@@ -331,7 +373,7 @@ app.get('/api/server-status', async (req, res) => {
 });
 
 // ==========================================
-// SERVICES - SERVER 1
+// SERVICES
 // ==========================================
 app.get('/api/v1/services', async (req, res) => {
     try {
@@ -387,7 +429,7 @@ app.get('/api/v1/check/:order_id', async (req, res) => {
 });
 
 // ==========================================
-// CANCEL ORDER
+// CANCEL
 // ==========================================
 app.post('/api/v1/cancel/:order_id', async (req, res) => {
     try {
@@ -406,7 +448,8 @@ app.get('/api/test', (req, res) => {
     res.json({
         success: true,
         message: '✅ DooPedia API is running!',
-        version: '2.0.0'
+        version: '2.0.0',
+        timestamp: new Date().toISOString()
     });
 });
 
@@ -415,11 +458,18 @@ app.get('/api/test', (req, res) => {
 // ==========================================
 app.use((err, req, res, next) => {
     console.error('❌ Server Error:', err.message);
-    res.status(500).json({ success: false, error: err.message });
+    res.status(500).json({ 
+        success: false, 
+        error: err.message || 'Internal server error' 
+    });
 });
 
 app.use((req, res) => {
-    res.status(404).json({ success: false, error: 'Endpoint not found' });
+    res.status(404).json({ 
+        success: false, 
+        error: 'Endpoint not found',
+        path: req.path 
+    });
 });
 
 module.exports = app;
